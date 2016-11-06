@@ -1,39 +1,52 @@
-Include Irvine32.inc
+INCLUDE Irvine32.inc
 
 .data
-a db ?
-b db ?
-c db ?
+Atext	db "Enter A: ", 0
+Btext	db "Enter B: ", 0
+Ctext	db "Enter C: ", 0
 
+Aresult db "A is greatest", 0
+Bresult db "B is greatest", 0
+Cresult db "C is greatest", 0
 .code
 main PROC
-	call ReadInt
-	mov bl, al		;bl = b
-	call ReadInt
-	mov cl, al		;cl = c
-	call ReadInt	;al = a
 
-	exit
+	mov edx, offset Atext
+	call WriteString
+	call ReadInt
+	mov ecx, eax	; ecx = A
+	mov edx, offset Btext
+	call WriteString
+	call ReadInt
+	mov ebx, eax	; ebx = B
+	mov edx, offset Ctext
+	call WriteString
+	call ReadInt	; eax = C
+
+	; ecx = A, ebx = B, eax = C
+	cmp ecx, ebx
+	jge ACheck
+	cmp ebx, eax
+	jge greatestB
+	jmp greatestC
+
+	ACheck: cmp ecx, eax
+			jge greatestA
+
+	greatestA: mov edx, offset Aresult
+			   call WriteString
+			   call Crlf
+			   jmp endProgram
+	greatestB: mov edx, offset Bresult
+			   call WriteString
+			   call Crlf
+			   jmp endProgram
+	greatestC: mov edx, offset Cresult
+			   call WriteString
+			   call Crlf
+			   jmp endProgram
+
+	endProgram:	exit
 main ENDP
 
-Greatest PROC
-	cmp al, bl
-	jge compAC
-	jl compBC
-
-compAC:
-	cmp al, cl
-	jge aGreat
-	jl cGreat
-
-compBC:
-	jge bGreat
-	jl cGreat
-
-aGreat:
-bGreat:
-cGreat:
-
-	ret
-Greatest ENDP
-ENDMAIN
+END main
