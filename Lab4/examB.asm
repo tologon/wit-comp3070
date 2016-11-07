@@ -1,4 +1,3 @@
-;
 INCLUDE Irvine32.inc
 
 .data
@@ -14,7 +13,6 @@ mov esi, offset darray
 mov eax, [esi + 4]
 add eax, [esi + 8]
 mov [esi], eax
-
 	ret
 addtwo ENDP
 
