@@ -5,6 +5,10 @@ darray dd 0, 10, 15
 .code
 main PROC
 	call addtwo
+	mov esi, offset darray
+	mov eax, [esi]
+	call WriteDec
+	call Crlf
 	exit
 main ENDP
 
