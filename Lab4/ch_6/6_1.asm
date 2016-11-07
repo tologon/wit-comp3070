@@ -11,17 +11,19 @@ TITLE 6.11 Programming Exercises
 INCLUDE Irvine32.inc
 .data
 promptSize	db	"Please enter size of array (1-500): ", 0
+promptRange	db	"Please enter range values (j < k):", 0
 N			dd	?
-j			db	?
-k			db	?
+j			dd	?
+k			dd	?
 arrayN		dd	500 DUP(?)
 
 .code
 main PROC
-	call userInput
+	call userSize
 	call randomize
 	mov ecx, 2
 	Jose:
+		call userRange
 		call randomizeArray
 		loop Jose
 	call Crlf
@@ -31,7 +33,7 @@ main ENDP
 ; ask user for array's size.
 ; continously ask for the size until
 ; the size is within range of 1 to 500.
-userInput PROC USES edx eax
+userSize PROC USES edx eax
 	askInput:
 		mov edx, offset promptSize
 		call WriteString
@@ -48,7 +50,27 @@ userInput PROC USES edx eax
 	exitInput:
 		mov N, eax
 		ret
-userInput ENDP
+userSize ENDP
+
+; ask user for range values.
+; continously ask for the range values until
+; first value (j) is less than second value (k).
+userRange PROC USES edx eax ebx
+	askInput:
+		mov edx, offset promptRange
+		call WriteString
+		call Crlf
+		call ReadInt	; get j value
+		mov ebx, eax
+		call ReadInt	; get k value
+		cmp ebx, eax
+		jl exitInput
+		jmp askInput
+	exitInput:
+		mov ebx, j
+		mov eax, k
+		ret
+userRange ENDP
 
 randomizeArray PROC
 	ret
