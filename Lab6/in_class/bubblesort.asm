@@ -1,16 +1,17 @@
-Include Irvine32.inc
-
+INCLUDE Irvine32.inc
 .data
-arr dd 10, 15, 5, 25, 20
-count1 dd ?
-count2 dd ?
-counttemp dd ?
+arr			dd 10, 15, 5, 25, 20
+count1		dd ?
+count2		dd ?
+counttemp	dd ?
+
 .code
 main PROC
 	call PrintArr
 	call BubbleSort
 	call Crlf
 	call PrintArr
+	call Crlf
 
 	exit
 main ENDP
@@ -50,7 +51,8 @@ PrintArr PROC
 	Jose:
 		mov eax, [esi]
 		call WriteDec
-		call Crlf
+		mov al, ' '
+		call WriteChar
 		add esi, type arr
 	loop Jose
 

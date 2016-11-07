@@ -76,6 +76,7 @@ main PROC
 
 		mov eax, 15
 		call SetTextColor
+	call Crlf
 
 	exit
 main ENDP
