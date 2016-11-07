@@ -2,20 +2,25 @@
 INCLUDE Irvine32.inc
 
 .data
-dword1 = 25
+dword1 DWORD 25
+
 .code
 main PROC
-mov ebx, 5
-mov ecx, 3
+	mov ebx, 5
+	mov ecx, 3
+	call calculate
 	exit
 main ENDP
 
 calculate PROC
-	neg dword1
 	mov eax, dword1
+	neg eax				; cannot neg dword1, because immediate operand is not allowed.
 	sub ebx, ecx
+	neg ebx
 	add eax, ebx
 	dec eax
+	call WriteInt		; should display -25 + -(5 - 3) - 1 = -28
+	call Crlf
 	ret
 calculate ENDP
 
