@@ -1,6 +1,11 @@
-;A. eax = -dword1 +- (ebx - ecx) - 1
-INCLUDE Irvine32.inc
+TITLE	Midterm Procedures
+; Authors:
+; Daniel Zidelis
+; Terrance Curley
+; Tologon Eshimkanov
+; A. eax = -dword1 +- (ebx - ecx) - 1
 
+INCLUDE Irvine32.inc
 .data
 dword1 DWORD 25
 
@@ -23,5 +28,4 @@ calculate PROC
 	call Crlf
 	ret
 calculate ENDP
-
 END main

@@ -1,7 +1,8 @@
 TITLE	Midterm Procedures
 
+; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
+; 
 ; Procedure C
-;
 ; Fill a 200 word array with values 0-100 in even numbered memory locations
 ; and -50 to +49 in odd numbered memory locaations. Assume that
 ; the first location of the array is even numbered.

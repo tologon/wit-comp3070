@@ -1,7 +1,8 @@
 TITLE	Midterm Procedures
 
-; Procedure D
-;
+; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
+; 
+; Procedure D: 
 ; Initialize an array with 100 bytes; fill the first half of them
 ; with 55h and the second half with AAh. Print the elements now in
 ; an alternating fashion, as in 55h, followed by AAh. Use loops.

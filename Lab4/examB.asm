@@ -1,7 +1,14 @@
-INCLUDE Irvine32.inc
+TITLE	Midterm Procedures
 
+; Authors:
+; Daniel Zidelis
+; Terrance Curley
+; Tologon Eshimkanov
+
+INCLUDE Irvine32.inc
 .data
 darray dd 0, 10, 15
+
 .code
 main PROC
 	call addtwo
