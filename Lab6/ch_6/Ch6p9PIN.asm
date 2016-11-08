@@ -1,7 +1,8 @@
 TITLE Validating a PIN (Ch6p9PIN.asm)
-;Terrance Curley
-;Tologan Emishnakov
+;Authors:
 ;Daniel Zidelis
+;Terrance Curley
+;Tologon Eshimkanov
 ;Program will check if a PIN is valid. 
 ;If one of the digits in the pin is outside of the valid range for that digit, the pin will be invalid. 
 ;the position of the invalid digit will be placed in eax.
@@ -10,19 +11,15 @@ TITLE Validating a PIN (Ch6p9PIN.asm)
 INCLUDE Irvine32.inc
 
 .data
-;the specified range for each digit in the PIN. 
-;any value greater than the low range and less than the high range will be a valid digit.
+;The specified range for each digit in the PIN. 
+;Any value greater than the low range and less than the high range will be a valid digit.
 lowrange BYTE 5, 2, 4, 1, 3
 highrange BYTE 9, 5, 8, 4, 6
 
-;position's value is moved into eax if the PIN is invalid. it is incremented each time a digit is valid.
+;Position's value is moved into eax if the PIN is invalid. it is incremented each time a digit is valid.
 position BYTE 1
 
-;strings to write to console
-validstr BYTE "Valid PIN!"
-invalidstr1 BYTE "Invalid PIN! The offending digit is in position: ", 0
-
-;inputs to test Validate_PIN
+;Inputs to test Validate_PIN
 valid1 BYTE 6, 5, 4, 2, 4
 valid2 BYTE 9, 3, 6, 1, 5
 invalid1 BYTE 8, 1, 5, 8, 3
@@ -71,6 +68,7 @@ Validate_PIN PROC Uses esi edi ecx
 			inc esi
 			inc edi
 			loop Jose
+	;Following code only runs if the digit is valid (end of loop)
 	mov eax, 0
 	mov position, 1
 	jmp Return
