@@ -1,6 +1,8 @@
 TITLE 6.11 Programming Exercises
 
-; 1. Filling an Array
+; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
+;
+; Exercise 1. Filling an Array
 ;
 ; Create a procedure that fills an array of doublewords with N random integers, making sure the
 ; values fall within the range j...k, inclusive. When calling the procedure, pass a pointer to the
@@ -9,6 +11,7 @@ TITLE 6.11 Programming Exercises
 ; values for j and k. Verify your results using a debugger.
 
 INCLUDE Irvine32.inc
+
 .data
 promptSize	db	"Please enter size of array (1-500): ", 0
 promptRange	db	"Please enter range values (j < k):", 0
@@ -66,13 +69,37 @@ userRange PROC USES edx eax ebx
 		cmp ebx, eax
 		jl exitInput
 		jmp askInput
+
 	exitInput:
-		mov ebx, j
-		mov eax, k
+		mov j, ebx
+		mov k, eax
+		inc k	; because k has to be inclusive
+		;call DumpRegs
 		ret
 userRange ENDP
 
-randomizeArray PROC
+randomizeArray PROC USES ecx esi
+	mov ecx, N
+	mov esi, offset arrayN
+	overArray:
+		call BetterRandomRange	; eax = new random value (between j & k)
+		mov [esi], eax			; store random value in array
+		call WriteInt
+		mov al, ' '
+		call WriteChar
+		add esi, type arrayN
+		loop overArray
+	call Crlf
 	ret
 randomizeArray ENDP
+
+BetterRandomRange PROC
+	mov eax, k
+	mov ebx, j
+	sub eax, ebx
+	call RandomRange
+	add eax, ebx
+	;call DumpRegs
+	ret
+BetterRandomRange ENDP
 END main
