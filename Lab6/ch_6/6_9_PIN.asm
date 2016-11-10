@@ -58,17 +58,17 @@ Validate_PIN PROC Uses esi edi ecx
 	mov esi, offset lowrange
 	mov edi, offset highrange
 	mov ecx, 5
-		Jose:
-			mov al, [ebx]	; until the end of the proc, eax is used to contain the current digit being checked
-			cmp al, [esi]
-			jl InvalidDigit
-			cmp al, [edi]
-			jg InvalidDigit
-			inc position	; working with the next digit
-			inc ebx
-			inc esi
-			inc edi
-			loop Jose
+	Jose:
+		mov al, [ebx]	; until the end of the proc, eax is used to contain the current digit being checked
+		cmp al, [esi]
+		jl InvalidDigit
+		cmp al, [edi]
+		jg InvalidDigit
+		inc position	; working with the next digit
+		inc ebx
+		inc esi
+		inc edi
+		loop Jose
 	; Following code only runs if the digit is valid (end of loop)
 	mov eax, 0
 	mov position, 1
