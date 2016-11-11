@@ -26,18 +26,7 @@ main PROC
 	call getCreditsPro
 	call creditCheckerPro
 	call registerPro
-	cmp OkToRegister, 1
-	je Okay
-	cmp OkToRegister, 0
-	je Failed
-	Okay:
-		mov edx, offset registryOkMSG
-		Call WriteString
-		Call crlf
-	Failed:
-		mov edx, offset registryFailMSG
-		Call WriteString
-		Call crlf
+	call registerCheck
 	
 main Endp
 ; This procedure prompts the user to enter the grade average
@@ -100,5 +89,19 @@ creditCheckerPro PROC
 		Call crlf
 	ret
 creditCheckerPro ENDP
-
+registerCheck PROC
+cmp OkToRegister, 1
+	je Okay
+	cmp OkToRegister, 0
+	je Failed
+	Okay:
+		mov edx, offset registryOkMSG
+		Call WriteString
+		Call crlf
+	Failed:
+		mov edx, offset registryFailMSG
+		Call WriteString
+		Call crlf
+ret
+registerCheck ENDP
 END main
