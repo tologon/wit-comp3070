@@ -1,14 +1,8 @@
 ; IntegerExpressionCalculation.asm 
 ; Chapter 3
 
-.386
-.model flat,stdcall
-.stack 4096 
-ExitProcess PROTO, dwExitCode:DWORD
 INCLUDE Irvine32.inc
 .data 
-TRUE = 1
-FALSE = 0
 gradeAverage WORD 275	; test value
 credits WORD 12			; test value
 OkToRegister BYTE ?
@@ -21,29 +15,30 @@ creditErrorL db "Not a valid amount of credits! Needs to be more than 1", 0
 creditErrorG db "Not a valid amount of credits! Needs to be less than 30", 0
 .code	
 main PROC
-	mov OkToRegister, FALSE
+	mov OkToRegister, 0
 	call getGradeAverage
 	call getCreditsPro
 	call creditCheckerPro
 	call registerPro
-	cmp OkToRegister, 1
-	je Okay
 	cmp OkToRegister, 0
 	je Failed
-	Okay:
-		mov edx, offset registryOkMSG
-		Call WriteString
-		Call crlf
+
+	mov edx, offset registryOkMSG
+	JMP mainDone
+
 	Failed:
 		mov edx, offset registryFailMSG
+	
+	mainDone:
 		Call WriteString
 		Call crlf
-	
+	exit
 main Endp
+
 ; This procedure prompts the user to enter the grade average
 ; and then stores the amount to variable gradeAverage
 getGradeAverage PROC
-mov edx, offset getAverageMSG 
+	mov edx, offset getAverageMSG 
 	Call WriteString
 	Call ReadDec
 	mov gradeAverage, ax
@@ -54,7 +49,7 @@ getGradeAverage ENDP
 ;This procedure promts the user to enter the amount of credits
 ;and then stores the amount into variable credits
 getCreditsPro PROC
-mov edx, offset getCreditsMSG
+	mov edx, offset getCreditsMSG
 	call WriteString
 	Call ReadDec
 	mov credits, ax
@@ -73,31 +68,33 @@ registerPro PROC
 	cmp credits, 12			; .ELSEIF (credits <= 12)
 	jle checkCredits
 	trueCheck:
-		mov OkToRegister, TRUE
+		mov OkToRegister, 1
 	andCheck:		;	( && (credits <= 16))
 		cmp credits, 16
 		jle checkCredits
 	checkCredits:
-		mov OkToRegister, TRUE
+		mov OkToRegister, 1
 	ret
 registerPro ENDP
 
 ;This procedure checks if the credits are in a valid range
 ; and displays a message if they are not
 creditCheckerPro PROC
-	cmp credits, 30
-	jg invalidCreditsG
 	cmp credits, 1
 	jl invalidCreditsL
+	cmp credits, 30
+	jl endCCheck					; greater than 1 and less than 30 -> valid credits
 	
-	invalidCreditsG:
-		mov edx, offset creditErrorG
-		JMP endCCheck
+	mov edx, offset creditErrorG	; if credits are greater than 30
+	call WriteString
+	call Crlf
+	JMP endCCheck
+	
 	invalidCreditsL:
 		mov edx, offset creditErrorL
+		Call WriteString
+		Call Crlf
 	endCCheck:
-	Call WriteString
-	Call Crlf
 	ret
 creditCheckerPro ENDP
 
