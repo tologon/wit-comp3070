@@ -18,7 +18,7 @@ main PROC
 	mov ebx, 0
 	mov ecx, 0
 	
-	mov ax, lengthof arr	; end = length of array
+	mov ax, lengthof arr-1	; end = length of array
 	mov bx, 0				; start of an array
 	push bx					; push start of an array	
 	push ax					; push end of an array
@@ -34,32 +34,36 @@ main ENDP
 mergeSort PROC
 	call DumpRegs
 
-	sub ax, bx		; get the size of current array
-	cmp ax, 0		; if current array size is 0 or 1
-	jle	endProc		; yes: return the array (base case)
+	cmp ax, bx		; if current array size is 0 or 1 (compare end & start of current array)
+	jle endProc		; yes: return the array (base case)
 
-	add ax, bx		; no: further split array (i.e. cancel subtraction)
+	; no: further split array
 	mov cx, ax		; do operations in AX, preserving CX = end, BX = start
 	add ax, bx		; end1 + start1
 	shr ax, 1		; stored in AX, mid = (start1 + end1) / 2
-	dec cx
 
 	push bx			; push start of the left subarray
 	push ax			; push end of the left subarray
+	push cx			; push value in ECX, otherwise it would be overwritten
 	call mergeSort	; left subarray
+	pop cx
+	pop ax
+	pop bx
 	
-	;call DumpRegs
 	inc ax
 	mov bx, ax
 	mov ax, cx
 	push bx			; push start of the right subarray
 	push ax			; push end of the right subarray
+	push cx			; push value in ECX, otherwise it would be overwritten
 	call mergeSort	; right subarray
+	pop cx
+	pop ax
+	pop bx
 
 	; here will go final call to merge procedure that merges both subarrays
 
 endProc:
-	
 	ret
 mergeSort ENDP
 
