@@ -28,6 +28,7 @@ main ENDP
 ; start1 contains current array beginning
 ; end1 contains current array ending
 mergeSort PROC
+	call printValues
 	mov ax, end1
 	mov bx, start1
 	sub ax, bx
@@ -41,7 +42,6 @@ mergeSort PROC
 
 	mov cx, end1		; preserve end1 value for right subarray
 	mov end1, ax		; end1 = mid - 1
-	call printValues
 	call mergeSort		; left subarray
 
 	mov bx, end1
@@ -52,7 +52,6 @@ mergeSort PROC
 	inc ax
 	mov start1, ax		; start1 = mid
 	mov end1, cx		; end1 = end of the current array
-	call printValues
 	call mergeSort		; right subarray
 
 	; here will go final call to merge procedure that merges both subarrays
@@ -79,11 +78,9 @@ printArr PROC
 	ret
 printArr ENDP
 
-printValues PROC USES eax ebx ecx edx
+printValues PROC USES eax ebx
 	movzx eax, start1
 	movzx ebx, end1
-	movzx ecx, start2
-	movzx edx, end2
 	call DumpRegs
 	ret
 printValues ENDP
