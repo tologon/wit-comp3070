@@ -19,7 +19,6 @@ main PROC
 	call getGradeAverage
 	call getCreditsPro
 	call creditCheckerPro
-	call registerPro
 	cmp OkToRegister, 0
 	je Failed
 
@@ -83,17 +82,22 @@ creditCheckerPro PROC
 	cmp credits, 1
 	jl invalidCreditsL
 	cmp credits, 30
-	jl endCCheck					; greater than 1 and less than 30 -> valid credits
+	jg invalidCreditsG					; greater than 1 and less than 30 -> valid credits
+	call registerPro
+	JMP endCCheck
 	
+	invalidCreditsG:
 	mov edx, offset creditErrorG	; if credits are greater than 30
 	call WriteString
 	call Crlf
+	mov OkToRegister, 0
 	JMP endCCheck
 	
 	invalidCreditsL:
 		mov edx, offset creditErrorL
 		Call WriteString
 		Call Crlf
+		mov OkToRegister, 0
 	endCCheck:
 	ret
 creditCheckerPro ENDP
