@@ -1,6 +1,16 @@
-; IntegerExpressionCalculation.asm 
-; Chapter 3
-
+; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
+;
+; Exercise 4. College Registration
+;
+;Using the College Registration example from Section 6.7.3 as a starting point, do the following:
+;Recode the logic using CMP and conditional jump instructions (instead of the .IF and
+; .ELSEIF directives).
+;Perform range checking on the credits value; it cannot be less than 1 or greater than 30. If an
+; invalid entry is discovered, display an appropriate error message.
+;Prompt the user for the grade average and credits values.
+; Display a message that shows the outcome of the evaluation, such as “The student can register”
+;or “The student cannot register”.
+;---------------------------------------------------------------------------------------
 INCLUDE Irvine32.inc
 .data 
 gradeAverage WORD 275	; test value
