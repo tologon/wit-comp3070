@@ -9,54 +9,57 @@ start1	WORD ?
 start2	WORD ?
 end1	WORD ?
 end2	WORD ?
-
 ; _________________________________ CODE _________________________________
 .code
 main PROC
 	call printArr
 	call Crlf
+	mov eax, 0
+	mov ebx, 0
+	mov ecx, 0
 	
-	mov start1, 0
-	mov ax, lengthof arr	; end = length of array		
-	mov end1, ax
+	mov ax, lengthof arr	; end = length of array
+	mov bx, 0				; start of an array
+	push bx					; push start of an array	
+	push ax					; push end of an array
 	call mergeSort
 	call PrintArr
 	call Crlf
 	exit
 main ENDP
 
-; start1 contains current array beginning
-; end1 contains current array ending
+; before the start of PROC, the registers have the following values:
+; AX = end of current array
+; BX = start of current array
 mergeSort PROC
-	call printValues
-	mov ax, end1
-	mov bx, start1
-	sub ax, bx
-	cmp al, 1			; if current array size is 0 or 1
-	jle	endProc			; yes: return the array (base case)
+	call DumpRegs
 
-	mov ax, end1		; no: further split array
-	add ax, bx			; end1 + start1
-	shr ax, 1			; stored in AX, mid = (start1 + end1) / 2
-	dec ax
+	sub ax, bx		; get the size of current array
+	cmp ax, 0		; if current array size is 0 or 1
+	jle	endProc		; yes: return the array (base case)
 
-	mov cx, end1		; preserve end1 value for right subarray
-	mov end1, ax		; end1 = mid - 1
-	call mergeSort		; left subarray
+	add ax, bx		; no: further split array (i.e. cancel subtraction)
+	mov cx, ax		; do operations in AX, preserving CX = end, BX = start
+	add ax, bx		; end1 + start1
+	shr ax, 1		; stored in AX, mid = (start1 + end1) / 2
+	dec cx
 
-	mov bx, end1
-	mov end2, bx		; move end1 to end2
-	mov bx, start1
-	mov start2, bx		; move start1 to start2
-
+	push bx			; push start of the left subarray
+	push ax			; push end of the left subarray
+	call mergeSort	; left subarray
+	
+	;call DumpRegs
 	inc ax
-	mov start1, ax		; start1 = mid
-	mov end1, cx		; end1 = end of the current array
-	call mergeSort		; right subarray
+	mov bx, ax
+	mov ax, cx
+	push bx			; push start of the right subarray
+	push ax			; push end of the right subarray
+	call mergeSort	; right subarray
 
 	; here will go final call to merge procedure that merges both subarrays
 
 endProc:
+	
 	ret
 mergeSort ENDP
 
@@ -77,12 +80,5 @@ printArr PROC
 
 	ret
 printArr ENDP
-
-printValues PROC USES eax ebx
-	movzx eax, start1
-	movzx ebx, end1
-	call DumpRegs
-	ret
-printValues ENDP
 
 END MAIN
