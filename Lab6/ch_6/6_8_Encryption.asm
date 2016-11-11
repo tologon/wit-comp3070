@@ -7,14 +7,18 @@ TITLE 6.11 Programming Exercises
 INCLUDE Irvine32.inc
 
 .data
+; Strings to write to console
 prompt db "Enter the plain text: ", 0
 strEnc db "Cipher text: ", 0
 strDec db "Decrypted: ", 0
 
+; The characters that is compared to the string in order to encrypt it.
 key db "ABXmv#7", 0
 
-inputString db 100 DUP(0)
-inputSize dd ?
+; buffer either will contain the user input string or the encrypted version of that string.
+; it is translated back and forth through the program.
+buffer db 100 DUP(0)
+bufferSize dd ?
 
 .code
 
@@ -30,32 +34,46 @@ main PROC
 	exit
 main ENDP
 
-; Prompts user for input, then stores it in the inputString array
-; Also saves the length of the user input in inputSize
+; Prompts user for input, then stores it in the buffer array
+; Also saves the length of the user input in bufferSize
+; OUTPUT: user input into buffer, size of input into bufferSize
+; USES: edx for location of strings in memory
+;	ecx for input loop in readString
+;	eax for length of the final input (given by readString)
 UserInput PROC uses edx ecx eax
 	mov edx, offset prompt
 	call WriteString
-	mov ecx, 100
-	mov edx, offset inputString
+	mov ecx, lengthof buffer
+	mov edx, offset buffer
 	call ReadString
-	mov inputSize, eax
+	mov bufferSize, eax
 	call Crlf
 	ret
 UserInput ENDP
 
+; Outputs the current content of buffer
+; INPUT: edx should contain location of a string labeling the output
+; OUTPUT: current contents of buffer is output to console. This will either be the encrypted or decrypted string
+;	depending on how the Translate procedure is used.
 DisplayMsg PROC
 	call WriteString
-	mov edx, offset inputString
+	mov edx, offset buffer
 	call WriteString
 	call Crlf
 	call Crlf
 	ret
 DisplayMsg ENDP
 
-Translate PROC
-	mov esi, offset inputString
-	mov edi, offset key
-	mov ebx, inputSize
+; XORs the contents of the buffer with the key to encrypt or decrypt the message.
+; OUTPUT: the characters in the buffer will be translated using the key
+; USES: esi contains the location of the buffer in memory
+;	ebx is used to keep track of how much of the buffer has been translated
+;	ecx is used as loop count, either contains the length of the key or the remaining length of the buffer, whichever is smaller.
+;	edi points to the key in memory
+;	eax is used to xor the characters (avoids mem, mem)
+Translate PROC uses esi ebx ecx edi eax
+	mov esi, offset buffer
+	mov ebx, bufferSize
 	
 	checkLength:				; checks which
 	mov ecx, lengthof key
@@ -65,6 +83,7 @@ Translate PROC
 	
 	startLoop:
 	sub ebx, ecx
+	mov edi, offset key
 	Jose:
 		mov al, [edi]			; move current part of key into al
 		xor [esi], al			; translate using xor
