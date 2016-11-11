@@ -41,13 +41,13 @@ RangeSum PROC
 	mov eax, 0
 	Jose:
 		cmp [esi], ebx
-		jl endl
+		jl next
 		cmp [esi], edx
-		jg endl
+		jg next
 		
 		add eax, [esi]
 		
-		endl:
+		next:
 		add esi, 4
 		loop Jose
 	ret
