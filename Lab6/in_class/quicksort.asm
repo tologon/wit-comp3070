@@ -1,4 +1,7 @@
 TITLE Quick Sort Procedure (QuickSort.asm)
+
+; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
+
 INCLUDE Irvine32.inc
 
 .data
@@ -27,7 +30,7 @@ main ENDP
 quickSort PROC
 	push eax
 	push ebx
-	mov eax, lengthof arr
+	mov eax, sizeof arr
 	mov ebx, 2
 	div ebx
 	mov pivot eax
@@ -39,14 +42,16 @@ quickSort PROC
 	Jose:
 		mov eax, [esi]
 		cmp eax, pivot
-		jg MoveUpper
-		
-		MoveUpper:
+		jl Next
+
 		xchg eax, [esi+endval]
+		sub endval, 4
+		mov [esi], eax
 		
+		Next:
 		loop Jose
-	
-	
+	;recursive calls
+	;call quickSort
 	endSort:
 	ret
 quickSort ENDP
