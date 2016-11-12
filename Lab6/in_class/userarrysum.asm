@@ -6,9 +6,9 @@ INCLUDE Irvine32.inc
 
 .data
 array DWORD 100 DUP (?)
-s1 BYTE "How many numbers would you like to input?:", 0
+s1 BYTE "How many numbers would you like to input?: ", 0
 s2 BYTE "Please Enter Number:", 0
-s3 BYTE "Up to what number would you like me to add?:", 0
+s3 BYTE "Up to what number would you like me to add?: ", 0
 sizeIn DWORD ?
 total DWORD 0
 .code
@@ -54,9 +54,9 @@ sumElements PROC
         add esi, type array
     loop sum
 	mov total, eax
-	call printStuff
-	;call WriteInt
-	;call Crlf
+	;call printStuff
+	call WriteInt
+	call Crlf
     ret
 sumElements ENDP
 
