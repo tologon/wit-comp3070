@@ -54,29 +54,9 @@ sumElements PROC
         add esi, type array
     loop sum
 	mov total, eax
-	;call printStuff
 	call WriteInt
 	call Crlf
     ret
 sumElements ENDP
-
-;this procudure uses ECX, ESI, EAX
-    printStuff PROC
-    mov ecx, sizeIn
-    mov esi, offset array
-    mov eax, 0
-    JoseTwo:
-        mov ax, [esi]
-        Call WriteInt
-        Call crlf
-        add esi, type array
-        loop JoseTwo
-
-    mov eax, 0
-    mov eax, total
-    Call WriteInt
-    Call crlf
-    ret
-	printStuff ENDP
 
 END main
