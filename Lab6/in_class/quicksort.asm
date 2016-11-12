@@ -52,13 +52,13 @@ quickSort PROC
 quickSort ENDP
 
 printArr PROC
-	Jose:
+	Jose2:
 		mov eax, [esi]
 		call WriteDec
 		mov al, ' '
 		call WriteChar
 		add esi, type arr
-	loop Jose
+	loop Jose2
 
 	ret
 printArr ENDP
