@@ -30,7 +30,7 @@ main ENDP
 quickSort PROC
 	push eax
 	push ebx
-	mov eax, lengthof arr
+	mov eax, sizeof arr
 	mov ebx, 2
 	div ebx
 	mov pivot eax
@@ -45,11 +45,13 @@ quickSort PROC
 		jl Next
 
 		xchg eax, [esi+endval]
+		sub endval, 4
+		mov [esi], eax
 		
 		Next:
 		loop Jose
-	
-	
+	;recursive calls
+	;call quickSort
 	endSort:
 	ret
 quickSort ENDP
