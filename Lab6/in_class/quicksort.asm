@@ -9,7 +9,6 @@ array
 
 .code
 main PROC
-	mov eax, 0
 	call printArr
 	call Crlf
 	call quickSort
@@ -20,13 +19,30 @@ main PROC
 main ENDP
 
 quickSort PROC
-	mov ax, lengthof arr
+	call sumArr
 	div 2
 	mov pivot, al
-	
+	mov ecx, lengthof arr
+	mov esi, offset arr
+	Jose:
+		cmp [esi], al
+		
+		loop Jose
 	
 	ret
 quickSort ENDP
+
+sumArr PROC
+	mov ecx, lengthof arr
+	mov esi, offset arr
+	mov eax, 0
+	sum:
+		add eax, [esi]
+		add esi type arr
+		loop sum
+	
+	ret
+sumArr ENDP
 
 printArr PROC
 	mov ecx, lengthof arr
