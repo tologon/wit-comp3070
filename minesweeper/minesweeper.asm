@@ -3,7 +3,7 @@ TITLE	Minesweeper
 ; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
 
 INCLUDE Irvine32.inc
-
+; _____________________ DATA _________________________________
 .data
 ; access grid cells using the following: [base + index],
 ; where base is held in a base register
@@ -15,60 +15,32 @@ rowSize	= ($ - grid)
 
 x	BYTE ?
 y	BYTE ?
-promptXY BYTE "Enter X & Y values (-1 to end):", 0
-Xvalue	BYTE "X value: ", 0
-Yvalue	BYTE "Y value: ", 0
-
+firstPrompt BYTE "Enter X & Y values (-1 to end the loop).", 0
+promptX	BYTE "Enter X coordinate: ", 0
+promptY	BYTE "Enter Y coordinate: ", 0
+cellValue BYTE "Cell value: ", 0 
+; _____________________ CODE _________________________________
 .code
 main PROC
+	mov edx, OFFSET firstPrompt
+	call WriteString
+	call Crlf
 	INPUT:
 		call getInput
 		cmp x, -1
 		jle FINISH_IT
 
-		;call printX
-		;call printY
-
-		mov eax, 0
-		mov al, x
-		mov edx, rowSize
-		mul dl
-
-		movzx esi, y
-		mov ebx, OFFSET grid	; table offset
-		add ebx, eax			; row offset
-		mov al, [ebx + esi]
-		call WriteDec
-		call Crlf
+		call printCellValue
 		jmp INPUT
 
 	FINISH_IT:
 		exit
 main ENDP
 
-printX PROC USES eax
-	mov edx, offset Xvalue
-	call WriteString
-	movzx eax, x
-	call WriteDec
-	call Crlf
-	ret
-printX ENDP
-
-printY PROC USES eax
-	mov edx, offset Yvalue
-	call WriteString
-	movzx eax, y
-	call WriteDec
-	call Crlf
-	ret
-printY ENDP
-
 getInput PROC USES eax edx
 	mov eax, 0
-	mov edx, OFFSET promptXY
+	mov edx, OFFSET promptX
 	call WriteString
-	call Crlf
 	call ReadInt	; get X
 	cmp al, 0
 	jge CHECK1
@@ -77,6 +49,8 @@ getInput PROC USES eax edx
 
 	CHECK1:
 		mov x, al
+		mov edx, OFFSET promptY
+		call WriteString
 		call ReadInt	; get Y
 		cmp al, 0
 		jge CHECK2
@@ -89,4 +63,22 @@ getInput PROC USES eax edx
 	END_PROC:
 		ret
 getInput ENDP
+
+printCellValue PROC
+	mov eax, 0
+	mov al, x
+	mov edx, rowSize
+	mul dl
+
+	movzx esi, y
+	mov ebx, OFFSET grid	; table offset
+	add ebx, eax			; row offset
+	mov al, [ebx + esi]
+
+	mov edx, offset cellValue
+	call WriteString
+	call WriteDec
+	call Crlf
+	ret
+printCellValue ENDP
 END main
