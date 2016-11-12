@@ -1,3 +1,6 @@
+TITLE In class: sum values in an array up to a certain number
+
+; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
 
 INCLUDE Irvine32.inc
 

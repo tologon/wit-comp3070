@@ -1,3 +1,7 @@
+TITLE In class: Upper-Lower case conversion
+
+; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
+
 INCLUDE Irvine32.inc
 .data
 regularInput	db 300 DUP(0)

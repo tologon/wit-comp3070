@@ -1,3 +1,7 @@
+TITLE In class: greatest of 3
+
+; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
+
 INCLUDE Irvine32.inc
 
 .data

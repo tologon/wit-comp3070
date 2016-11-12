@@ -1,3 +1,7 @@
+TITLE Bubble Sort Procedure (bubblesort.asm)
+
+; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
+
 INCLUDE Irvine32.inc
 .data
 arr			dd 10, 15, 5, 25, 20

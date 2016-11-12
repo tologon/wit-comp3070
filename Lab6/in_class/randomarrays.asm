@@ -1,3 +1,6 @@
+TITLE In class: randomly generated arrays
+
+; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
 
 INCLUDE Irvine32.inc
 
