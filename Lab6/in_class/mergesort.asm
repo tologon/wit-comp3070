@@ -10,6 +10,8 @@ start2	WORD ?
 end1	WORD ?
 end2    WORD ?
 two     BYTE 2
+tmp1	DWORD ?
+tmp2	DWORD ?
 ; _________________________________ CODE _________________________________
 .code
 main PROC
@@ -86,6 +88,9 @@ getValues:
 	mov ebx, eax		; save index to ebx
 	mov eax, ecx		; eax = start1
 	call convertIndex
+
+	mov tmp1, eax
+	mov tmp2, ebx
 	mov ax, [esi+eax]
 	mov bx, [esi+ebx]
 	;call DumpRegs
@@ -100,21 +105,30 @@ increment:
 	cmp cx, dx
 	je endProc
 	cmp cx, end1
-	je endProc
+	jge endProc
 	jmp getValues
 
 switch:
 	;call DumpRegs
-	mov [esi+eax], bx
-	mov [esi+ebx], ax
+	push ecx
+	push edx
+	mov ecx, eax
+	mov edx, ebx
+	mov eax, tmp1
+	mov ebx, tmp2
+	mov [esi+eax], ecx
+	mov [esi+ebx], edx
+	pop edx
+	pop ecx
 	inc dx
 	cmp cx, dx
 	je endProc
 	cmp dx, end2
-	je endProc
+	jge endProc
 	jmp getValues
 
 endProc:
+	;call DumpRegs
 	ret
 merge ENDP
 
