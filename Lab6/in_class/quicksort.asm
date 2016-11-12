@@ -4,6 +4,8 @@ INCLUDE Irvine32.inc
 .data
 arr		dd 10, 15, 5, 25, 20, 30
 pivot 	dd ?
+endval	dd ?
+
 
 array 
 
@@ -11,6 +13,10 @@ array
 main PROC
 	call printArr
 	call Crlf
+	mov esi, offset arr
+	mov ecx, lengthof arr
+	mov endval, sizeof arr
+	mov eax, 0
 	call quickSort
 	call printArr
 	call Crlf
@@ -19,34 +25,33 @@ main PROC
 main ENDP
 
 quickSort PROC
-	call sumArr
-	div 2
-	mov pivot, al
+	push eax
+	push ebx
+	mov eax, lengthof arr
+	mov ebx, 2
+	div ebx
+	mov pivot eax
+	pop ebx
+	pop eax
+
 	mov ecx, lengthof arr
 	mov esi, offset arr
 	Jose:
-		cmp [esi], al
+		mov eax, [esi]
+		cmp eax, pivot
+		jg MoveUpper
+		
+		MoveUpper:
+		xchg eax, [esi+endval]
 		
 		loop Jose
 	
+	
+	endSort:
 	ret
 quickSort ENDP
 
-sumArr PROC
-	mov ecx, lengthof arr
-	mov esi, offset arr
-	mov eax, 0
-	sum:
-		add eax, [esi]
-		add esi type arr
-		loop sum
-	
-	ret
-sumArr ENDP
-
 printArr PROC
-	mov ecx, lengthof arr
-	mov esi, offset arr
 	Jose:
 		mov eax, [esi]
 		call WriteDec
