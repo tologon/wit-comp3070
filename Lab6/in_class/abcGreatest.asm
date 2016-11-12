@@ -36,6 +36,7 @@ main PROC
 
 	ACheck: cmp ecx, eax
 			jge greatestA
+			jmp greatestC
 
 	greatestA: mov edx, offset Aresult
 			   call WriteString
