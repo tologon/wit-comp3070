@@ -1,10 +1,9 @@
-; IntegerExpressionCalculation.asm 
-; Chapter 3
+TITLE 6.11 Programming Exercises
 
-.386
-.model flat,stdcall
-.stack 4096 
-ExitProcess PROTO, dwExitCode:DWORD
+; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
+;
+; Exercise 7. Probabilities and Colors
+
 INCLUDE Irvine32.inc
 .data 
 valRand dd ?
@@ -50,5 +49,6 @@ main PROC
 		mov edx, offset promptA
 		Call WriteString
 		Call Crlf
+	exit
 main Endp
 END main
