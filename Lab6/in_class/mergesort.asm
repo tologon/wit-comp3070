@@ -4,11 +4,12 @@ TITLE Merge sort
 
 INCLUDE Irvine32.inc
 .data
-arr		DWORD 10, 15, 5, 25, 20, 30
+arr		DWORD 10, 30, 5, 25, 20, 15
 start1	WORD ?
 start2	WORD ?
 end1	WORD ?
-end2	WORD ?
+end2    WORD ?
+two     BYTE 2
 ; _________________________________ CODE _________________________________
 .code
 main PROC
@@ -32,7 +33,7 @@ main ENDP
 ; AX = end of current array
 ; BX = start of current array
 mergeSort PROC
-	call DumpRegs
+	;call DumpRegs
 
 	cmp ax, bx		; if current array size is 0 or 1 (compare end & start of current array)
 	jle endProc		; yes: return the array (base case)
@@ -40,7 +41,8 @@ mergeSort PROC
 	; no: further split array
 	mov cx, ax		; do operations in AX, preserving CX = end, BX = start
 	add ax, bx		; end1 + start1
-	shr ax, 1		; stored in AX, mid = (start1 + end1) / 2
+	div two			; stored in AX, mid = (start1 + end1) / 2
+	mov ah, 0		; clear AH from any remainder values created by DIV above
 
 	push bx			; push start of the left subarray
 	push ax			; push end of the left subarray
@@ -49,6 +51,8 @@ mergeSort PROC
 	pop cx
 	pop ax
 	pop bx
+	mov start1, bx
+	mov end1, ax
 	
 	inc ax
 	mov bx, ax
@@ -60,16 +64,65 @@ mergeSort PROC
 	pop cx
 	pop ax
 	pop bx
+	mov start2, bx
+	mov end2, ax
 
-	; here will go final call to merge procedure that merges both subarrays
+	call merge
 
 endProc:
 	ret
 mergeSort ENDP
 
-merge PROC
+merge PROC USES esi eax ebx ecx edx
+	movzx ecx, start1	; ecx = start1
+	movzx edx, start2	; edx = start2
+	cmp cx, dx			; if start1 == start2
+	je endProc			; yes: then end merge
+	mov esi, offset arr	; no: get corresponding values in array
+
+getValues:
+	mov eax, edx		; eax = start2
+	call convertIndex
+	mov ebx, eax		; save index to ebx
+	mov eax, ecx		; eax = start1
+	call convertIndex
+	mov ax, [esi+eax]
+	mov bx, [esi+ebx]
+	;call DumpRegs
+
+	cmp ax, bx
+	jl increment	; jump to increment start1
+	jg switch		; jump to switch values & increment start2
+	jmp endProc		; jump to the end of procedure
+
+increment:
+	inc cx
+	cmp cx, dx
+	je endProc
+	jmp endProc
+	;jmp getValues
+
+switch:
+	call DumpRegs
+	mov [esi+eax], bx
+	mov [esi+ebx], ax
+	inc dx
+	cmp cx, dx
+	je endProc
+	jmp endProc ;jmp getValues
+
+endProc:
 	ret
 merge ENDP
+
+; uses value in EAX register
+; converts regular index into one
+; that matches type of an array.
+convertIndex PROC USES ecx
+	mov cl, type arr
+	mul cl
+	ret
+convertIndex ENDP
 
 printArr PROC
 	mov ecx, lengthof arr
