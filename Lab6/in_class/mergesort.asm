@@ -99,17 +99,20 @@ increment:
 	inc cx
 	cmp cx, dx
 	je endProc
-	jmp endProc
-	;jmp getValues
+	cmp cx, end1
+	je endProc
+	jmp getValues
 
 switch:
-	call DumpRegs
+	;call DumpRegs
 	mov [esi+eax], bx
 	mov [esi+ebx], ax
 	inc dx
 	cmp cx, dx
 	je endProc
-	jmp endProc ;jmp getValues
+	cmp dx, end2
+	je endProc
+	jmp getValues
 
 endProc:
 	ret
