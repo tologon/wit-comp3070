@@ -4,7 +4,7 @@ TITLE Merge sort
 
 INCLUDE Irvine32.inc
 .data
-arr		DWORD 10, 30, 5, 25, 20, 15
+arr		DWORD 10, 5, 30, 25, 20, 15
 start1	WORD ?
 start2	WORD ?
 end1	WORD ?
@@ -95,7 +95,7 @@ getValues:
 	mov bx, [esi+ebx]
 	;call DumpRegs
 
-	cmp ax, bx
+	cmp ax, bx		; compare start1 and start2
 	jl increment	; jump to increment start1
 	jg switch		; jump to switch values & increment start2
 	jmp endProc		; jump to the end of procedure
@@ -118,6 +118,8 @@ switch:
 	mov ebx, tmp2
 	mov [esi+eax], ecx
 	mov [esi+ebx], edx
+	;call printArr
+	;call Crlf
 	pop edx
 	pop ecx
 	inc dx
