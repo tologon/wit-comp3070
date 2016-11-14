@@ -22,6 +22,7 @@ cellValue BYTE "Cell value: ", 0
 ; _____________________ CODE _________________________________
 .code
 main PROC
+	call Randomize
 	mov edx, OFFSET firstPrompt
 	call WriteString
 	call Crlf
