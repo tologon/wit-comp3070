@@ -90,3 +90,22 @@ IncCells PROC uses ebx edx
 	Done:
 	ret
 IncCells ENDP
+
+PrintGrid PROC uses eax ecx esi
+	mov esi, offset grid
+	mov ecx, 9
+		Tologon:
+			push ecx
+			mov ecx, 9
+			Tologonbaby:
+				mov al, [esi]
+				call WriteChar
+				inc esi
+				loop Tologonbaby
+			pop ecx
+			call Crlf
+		
+			loop Tologon
+	
+	ret
+PrintGrid ENDP

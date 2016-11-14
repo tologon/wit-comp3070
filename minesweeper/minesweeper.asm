@@ -9,16 +9,17 @@ INCLUDE Terrance.inc
 ; access grid cells using the following: [base + index],
 ; where base is held in a base register
 ; and index is held in an index register.
-grid	BYTE 9 DUP(0)
+; by default a cell has the value of 48, ascii value for zero
+grid	BYTE 9 DUP(48)
 rowSize	= ($ - grid)
-		BYTE 9 DUP(0)
-		BYTE 9 DUP(0)
-		BYTE 9 DUP(0)
-		BYTE 9 DUP(0)
-		BYTE 9 DUP(0)
-		BYTE 9 DUP(0)
-		BYTE 9 DUP(0)
-		BYTE 9 DUP(0)
+		BYTE 9 DUP(48)
+		BYTE 9 DUP(48)
+		BYTE 9 DUP(48)
+		BYTE 9 DUP(48)
+		BYTE 9 DUP(48)
+		BYTE 9 DUP(48)
+		BYTE 9 DUP(48)
+		BYTE 9 DUP(48)
 
 x	BYTE ?
 y	BYTE ?
@@ -30,10 +31,11 @@ cellValue BYTE "Cell value: ", 0
 .code
 main PROC
 	call Randomize
-	call PlaceMines
 	mov edx, OFFSET firstPrompt
 	call WriteString
 	call Crlf
+	call PlaceMines
+	call PrintGrid
 	INPUT:
 		call getInput
 		cmp x, -1
