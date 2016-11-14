@@ -8,10 +8,16 @@ INCLUDE Irvine32.inc
 ; access grid cells using the following: [base + index],
 ; where base is held in a base register
 ; and index is held in an index register.
-grid	BYTE 1, 2, 3
+grid	BYTE 9 DUP(0)
 rowSize	= ($ - grid)
-		BYTE 4, 5, 6
-		BYTE 7, 8, 9
+		BYTE 9 DUP(0)
+		BYTE 9 DUP(0)
+		BYTE 9 DUP(0)
+		BYTE 9 DUP(0)
+		BYTE 9 DUP(0)
+		BYTE 9 DUP(0)
+		BYTE 9 DUP(0)
+		BYTE 9 DUP(0)
 
 x	BYTE ?
 y	BYTE ?
