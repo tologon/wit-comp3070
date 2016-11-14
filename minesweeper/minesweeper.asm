@@ -29,6 +29,7 @@ cellValue BYTE "Cell value: ", 0
 .code
 main PROC
 	call Randomize
+	call PlaceMines
 	mov edx, OFFSET firstPrompt
 	call WriteString
 	call Crlf
@@ -88,4 +89,17 @@ printCellValue PROC
 	call Crlf
 	ret
 printCellValue ENDP
+
+PlaceMines PROC
+	mov ecx, 10
+	mov esi, offset grid
+	MineLayer:
+		mov eax, 81
+		call RandomRange
+		mov [esi+eax], '*'
+		
+		loop MineLayer
+	ret
+PlaceMines ENDP
+
 END main
