@@ -90,13 +90,15 @@ printCellValue PROC
 	ret
 printCellValue ENDP
 
-PlaceMines PROC
+PlaceMines PROC uses ecx esi eax
 	mov ecx, 10
-	mov esi, offset grid
 	MineLayer:
+		mov esi, offset grid
 		mov eax, 81
 		call RandomRange
-		mov [esi+eax], '*'
+		add esi, eax
+		mov eax, 42
+		mov [esi], eax
 		
 		loop MineLayer
 	ret
