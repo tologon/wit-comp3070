@@ -105,9 +105,9 @@ PlaceMines PROC uses ecx esi eax
 	ret
 PlaceMines ENDP
 
-IncCells PROC uses ebx
-	mov ebx, 9
-	div ebx
+IncCells PROC uses ebx edx
+	mov bl, 9
+	div bl
 	mov edx, 1			; Required to increment cells by reference
 	
 		cmp al, 0
