@@ -93,4 +93,22 @@ printCellValue PROC
 	ret
 printCellValue ENDP
 
+; assuming x and y variables are set, this procedure
+; sets the value (stored in eax) in (x, y) cell on the grid.
+; USES: x, y, eax (but really only uses value in AL)
+setCellValue PROC
+	push eax				; save for later use
+	mov eax, 0
+	mov al, x
+	mov edx, rowSize
+	mul dl
+
+	movzx esi, y
+	mov ebx, OFFSET grid	; table offset
+	add ebx, eax			; row offset
+	pop eax					; get original value
+	mov [ebx + esi], al
+	ret
+setCellValue ENDP
+
 END main
