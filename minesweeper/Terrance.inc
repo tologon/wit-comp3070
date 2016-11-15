@@ -9,7 +9,7 @@ PlaceMines PROC uses ecx esi eax
 		add esi, eax
 		call IncCells
 		mov eax, 42
-		mov [esi], eax
+		mov [esi], al
 		
 		loop MineLayer
 	ret
@@ -49,8 +49,8 @@ IncCells PROC uses ebx edx
 		
 		Left2:
 		mov ebx, [esi-1]
-		cmp ebx, 42
-		je Left3
+		;cmp ebx, 42
+		;je Left3
 		add [esi-1], edx
 		
 		Left3:
@@ -97,11 +97,11 @@ PrintGrid PROC uses eax ecx esi
 		Tologon:
 			push ecx
 			mov ecx, 9
-			Tologonbaby:
+			Tologonsbaby:
 				mov al, [esi]
 				call WriteChar
 				inc esi
-				loop Tologonbaby
+				loop Tologonsbaby
 			pop ecx
 			call Crlf
 		
