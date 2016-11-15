@@ -49,8 +49,8 @@ IncCells PROC uses ebx edx
 		
 		Left2:
 		mov ebx, [esi-1]
-		;cmp ebx, 42
-		;je Left3
+		cmp ebx, 42
+		je Left3
 		add [esi-1], edx
 		
 		Left3:
