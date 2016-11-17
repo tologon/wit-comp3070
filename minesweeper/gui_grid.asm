@@ -76,7 +76,7 @@ WinMain proc hInst:HINSTANCE,hPrevInst:HINSTANCE,CmdLine:LPSTR,CmdShow:DWORD
     ret 
 WinMain endp
 
-generateGrid PROTO STDCALL :DWORD, :DWORD, :DWORD, :DWORD
+generateGrid PROTO :DWORD, :DWORD, :DWORD, :DWORD
 
 generateGrid PROC USES ecx ebx hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 	mov ecx, 9	; OUTER LOOP
@@ -86,6 +86,7 @@ MARCO:
 	mov ecx, 9	; INNER LOOP
 	POLO:
 		push ecx
+		; the line below creates a button at (x, y) coordinates and its 20x20 size.
 		invoke CreateWindowEx,NULL, ADDR ButtonClassName,ADDR ButtonText,\ 
 				WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON,\ 
 				y,x,20,20,hWnd,ButtonID,hInstance,NULL
