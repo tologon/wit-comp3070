@@ -1,45 +1,48 @@
-.386 
-.model flat,stdcall 
-option casemap:none
-WinMain proto :DWORD,:DWORD,:DWORD,:DWORD
+TITLE Minesweeper
+; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
+; ____________________________ SETTINGS & LIBRARIES ____________________________________________
+.model flat,stdcall ; required directives
+option casemap:none	; required property
 
-include \masm32\include\windows.inc 
-include \masm32\include\user32.inc 
-include \masm32\include\kernel32.inc 
-includelib \masm32\lib\user32.lib 
-includelib \masm32\lib\kernel32.lib
+INCLUDE \masm32\include\windows.inc
+INCLUDE \masm32\include\user32.inc
+INCLUDE \masm32\include\kernel32.inc
+; ____________________________ DATA & DEFINITIONS ______________________________________________
+WinMain			PROTO	:DWORD,:DWORD,:DWORD,:DWORD
+generateGrid	PROTO	:DWORD, :DWORD, :DWORD, :DWORD
 
 .data 
-ClassName db "SimpleWinClass",0 
-AppName  db "Minesweeper",0 
-MenuName db "FirstMenu",0 
-ButtonClassName db "button",0 
-ButtonText db " ",0 
-x WORD 20
-y WORD 0
+ClassName		BYTE "SimpleWinClass", 0 
+AppName			BYTE "Minesweeper", 0 
+MenuName		BYTE "FirstMenu", 0 
+ButtonClassName	BYTE "button", 0 
+ButtonText		BYTE " ", 0 
+x				WORD 20
+y				WORD 0
 
-.data? 
-hInstance HINSTANCE ? 
-CommandLine LPSTR ? 
-hwndButton HWND ? 
+.data?
+hInstance	HINSTANCE ? 
+CommandLine	LPSTR ? 
+hwndButton	HWND ? 
 
 .const 
-ButtonID equ 1                                ; The control ID of the button control 
-IDM_HELLO equ 1 
-IDM_CLEAR equ 2 
-IDM_GETTEXT equ 3 
-IDM_EXIT equ 4
-
-.code 
-start: 
+ButtonID	equ 1	; The control ID of the button control 
+IDM_HELLO	equ 1 
+IDM_CLEAR	equ 2 
+IDM_GETTEXT	equ 3 
+IDM_EXIT	equ 4
+; ___________________________________ CODE _____________________________________________________
+.code
+main PROC
     invoke GetModuleHandle, NULL 
     mov    hInstance,eax 
     invoke GetCommandLine
     mov CommandLine,eax 
     invoke WinMain, hInstance,NULL,CommandLine, SW_SHOWDEFAULT 
     invoke ExitProcess,eax
+main ENDP
 
-WinMain proc hInst:HINSTANCE,hPrevInst:HINSTANCE,CmdLine:LPSTR,CmdShow:DWORD 
+WinMain PROC hInst:HINSTANCE, hPrevInst:HINSTANCE, CmdLine:LPSTR, CmdShow:DWORD 
     LOCAL wc:WNDCLASSEX 
     LOCAL msg:MSG 
     LOCAL hwnd:HWND 
@@ -76,11 +79,8 @@ WinMain proc hInst:HINSTANCE,hPrevInst:HINSTANCE,CmdLine:LPSTR,CmdShow:DWORD
     ret 
 WinMain endp
 
-generateGrid PROTO :DWORD, :DWORD, :DWORD, :DWORD
-
 generateGrid PROC USES ecx ebx hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 	mov ecx, 9	; OUTER LOOP
-
 MARCO:
 	push ecx	; keep outer counter for later
 	mov ecx, 9	; INNER LOOP
@@ -133,5 +133,6 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
     .ENDIF 
      xor    eax,eax 
     ret 
-WndProc endp 
-end start
+WndProc endp
+
+END main
