@@ -2,7 +2,6 @@
 ; I have moved those procedures to this include file for compatibility with the MASM32 Libraries
 
 .data
-;seed DWORD 1
 sysTime SYSTEMTIME <>
 
 grid	BYTE 9 DUP(48)
@@ -15,9 +14,6 @@ rowSize	= ($ - grid)
 		BYTE 9 DUP(48)
 		BYTE 9 DUP(48)
 		BYTE 9 DUP(48)
-
-;x	BYTE ?
-;y	BYTE ?
 
 .code
 PlaceMines PROC uses ecx esi eax
@@ -176,23 +172,3 @@ seed  DWORD 1
 
 	  ret
 Random32  ENDP
-
-;PrintGrid PROC uses eax ecx esi
-;	mov esi, offset grid
-;	mov ecx, 9
-;		Tologon:
-;			push ecx
-;			mov ecx, 9
-;			Tologonsbaby:
-;				mov al, [esi]
-;				call WriteChar
-;				inc esi
-;				loop Tologonsbaby
-;			pop ecx
-;			call Crlf
-;		
-;			loop Tologon
-;	
-;	ret
-;PrintGrid ENDP
-
