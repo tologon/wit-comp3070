@@ -8,8 +8,8 @@ INCLUDE \masm32\include\windows.inc
 INCLUDE \masm32\include\user32.inc
 INCLUDE \masm32\include\kernel32.inc
 ; ____________________________ DATA & DEFINITIONS ______________________________________________
-WinMain			PROTO	:DWORD,:DWORD,:DWORD,:DWORD
-generateGrid	PROTO	:DWORD, :DWORD, :DWORD, :DWORD
+WinMain			PROTO	:DWORD
+generateGrid	PROTO	:DWORD
 
 .data 
 ClassName		BYTE "SimpleWinClass", 0 
@@ -36,7 +36,7 @@ IDM_EXIT	equ 4
 main PROC
     invoke	GetModuleHandle, NULL
     mov		hInstance, eax
-    invoke	WinMain, hInstance, NULL, NULL, SW_SHOWDEFAULT 
+    invoke	WinMain, hInstance
     invoke	ExitProcess, eax
 main ENDP
 
@@ -44,7 +44,7 @@ main ENDP
 ; This procedure serves two purposes:
 ; 1. It initializes the main window
 ; 2. It receives messages and dispatches them to related controls like buttons
-WinMain PROC hInst:HINSTANCE, hPrevInst:HINSTANCE, CmdLine:LPSTR, CmdShow:DWORD
+WinMain PROC hInst:HINSTANCE
 ; _____________________________________________________________________________
     LOCAL	wc:WNDCLASSEX 
     LOCAL	msg:MSG 
@@ -70,83 +70,86 @@ WinMain PROC hInst:HINSTANCE, hPrevInst:HINSTANCE, CmdLine:LPSTR, CmdShow:DWORD
 				CW_USEDEFAULT, CW_USEDEFAULT, \ 
 				200, 400, NULL, NULL, hInst ,NULL 
     mov		hwnd, eax 
-    invoke	ShowWindow, hwnd,SW_SHOWNORMAL 
-    invoke	UpdateWindow, hwnd 
-    .WHILE TRUE
-        invoke GetMessage, ADDR msg,NULL,0,0 
-        .BREAK .IF (!eax) 
-        invoke TranslateMessage, ADDR msg 
-        invoke DispatchMessage, ADDR msg 
-    .ENDW 
-    mov     eax,msg.wParam 
+    invoke	ShowWindow, hwnd, SW_SHOWNORMAL 
+    invoke	UpdateWindow, hwnd
+
+MESSAGES:
+    invoke GetMessage, ADDR msg, NULL, 0, 0
+
+	cmp eax, 0	; check if main window is closed
+	je endProc	; yes: end the program
+
+    invoke TranslateMessage, ADDR msg 
+    invoke DispatchMessage, ADDR msg 
+	jmp MESSAGES
+
+endProc:
+	mov eax, msg.wParam
     ret 
-WinMain endp
-; _____________________________________________________________________________
+WinMain ENDP
 
 ; _______________________________________________________________________________
 ; This procedure generates grid in forms of buttons (that's the best solution
 ; we have so far). This grid acts as a outer layer in the game.
-generateGrid PROC USES ecx ebx hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
+generateGrid PROC USES ecx ebx hWnd:HWND
 ; _______________________________________________________________________________
 	mov ecx, 9	; OUTER LOOP
 MARCO:
 	push ecx	; keep outer counter for later
 	mov ecx, 9	; INNER LOOP
 	POLO:
-		push ecx
+		push ecx	; saving ECX value on stack just to be safe
 		; 3 lines below creates a button at (x, y) coordinates and its 20x20 size
 		invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR ButtonText, \ 
 				WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \ 
 				y, x, 20, 20, hWnd, ButtonID, hInstance, NULL
-		mov bx, x
-		add bx, 20
-		mov x, bx
-		pop ecx
+		add x, 20	; move X value to right by 20 pixels
+		pop ecx		; returning (from stack) saved value of ECX
 		loop POLO
-	pop ecx
-	mov bx, y
-	add bx, 20
-	mov y, bx
-	mov x, 20
+	pop ecx		; bring outer counter to continue
+	add y, 20	; move Y value to right by 20 pixels
+	mov x, 20	; reset X to default value
 
 	loop MARCO
 	ret
 generateGrid ENDP
-; _______________________________________________________________________________
 
 ; _____________________________________________________________
 ; This procedure receives messages and acts accordingly.
 ; For example, on button click, it will delete it and display
 ; cell's value behind that button.
-WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
+WndProc PROC hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 ; _____________________________________________________________
-    .IF uMsg==WM_DESTROY 
-        invoke PostQuitMessage,NULL 
-    .ELSEIF uMsg==WM_CREATE
-		invoke generateGrid, hWnd, NULL, NULL, NULL
-        mov  hwndButton,eax 
-    .ELSEIF uMsg==WM_COMMAND 
-        mov eax,wParam 
-        .IF lParam==0 
-            .IF  ax==IDM_GETTEXT 
-                ;invoke MessageBox,NULL,NULL,ADDR AppName,MB_OK 
-            .ELSE 
-                invoke DestroyWindow,hWnd 
-            .ENDIF 
-        .ELSE 
-            .IF ax==ButtonID 
-                shr eax,16 
-                .IF ax==BN_CLICKED 
-                    invoke SendMessage,hWnd,WM_COMMAND,IDM_GETTEXT,0 
-                .ENDIF 
-            .ENDIF 
-        .ENDIF 
-    .ELSE 
-        invoke DefWindowProc,hWnd,uMsg,wParam,lParam 
-        ret 
-    .ENDIF 
-     xor    eax,eax 
+	cmp uMsg, WM_DESTROY
+	je destroyWindow
+	cmp uMsg, WM_CREATE
+	je createWindow
+	cmp uMsg, WM_COMMAND
+	je checkCommand
+	jmp defaultWindow
+
+destroyWindow:
+	invoke PostQuitMessage, NULL
+	jmp xorEAX
+
+createWindow:
+	invoke generateGrid, hWnd
+	mov hwndButton, eax
+	jmp xorEAX
+
+; TODO: interaction with buttons goes here
+checkCommand:
+	; use wParam and lParam here
+	;invoke DestroyWindow, hWnd
+	jmp xorEAX
+
+defaultWindow:
+	invoke DefWindowProc, hWnd, uMsg, wParam, lParam
+	jmp endProc
+
+xorEAX:
+	xor eax, eax
+endProc:
     ret 
-WndProc endp
-; _____________________________________________________________
+WndProc ENDP
 END main
