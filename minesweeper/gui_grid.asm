@@ -7,6 +7,7 @@ option casemap:none	; required property
 INCLUDE \masm32\include\windows.inc
 INCLUDE \masm32\include\user32.inc
 INCLUDE \masm32\include\kernel32.inc
+INCLUDE Grid32.inc
 ; ____________________________ DATA & DEFINITIONS ______________________________________________
 WinMain			PROTO	:DWORD
 generateGrid	PROTO	:DWORD
