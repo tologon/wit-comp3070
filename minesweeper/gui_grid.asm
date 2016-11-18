@@ -17,8 +17,9 @@ AppName			BYTE "Minesweeper", 0
 MenuName		BYTE "FirstMenu", 0 
 ButtonClassName	BYTE "button", 0 
 ButtonText		BYTE " ", 0 
-x				WORD 20
-y				WORD 0
+x				WORD 35
+y				WORD 20
+ButtonID		WORD 1		; The control ID of the button control 
 
 .data?
 hInstance	HINSTANCE ? 
@@ -26,7 +27,6 @@ CommandLine	LPSTR ?
 hwndButton	HWND ? 
 
 .const 
-ButtonID	equ 1	; The control ID of the button control 
 IDM_HELLO	equ 1 
 IDM_CLEAR	equ 2 
 IDM_GETTEXT	equ 3 
@@ -68,13 +68,13 @@ WinMain PROC hInst:HINSTANCE
     invoke	CreateWindowEx, WS_EX_CLIENTEDGE, ADDR ClassName, \ 
 				ADDR AppName, WS_OVERLAPPEDWINDOW, \ 
 				CW_USEDEFAULT, CW_USEDEFAULT, \ 
-				200, 400, NULL, NULL, hInst ,NULL 
+				200, 250, NULL, NULL, hInst ,NULL 
     mov		hwnd, eax 
     invoke	ShowWindow, hwnd, SW_SHOWNORMAL 
     invoke	UpdateWindow, hwnd
 
 MESSAGES:
-    invoke GetMessage, ADDR msg, NULL, 0, 0
+    invoke GetMessage, ADDR msg, NULL, NULL, NULL
 
 	cmp eax, 0	; check if main window is closed
 	je endProc	; yes: end the program
@@ -102,13 +102,15 @@ MARCO:
 		; 3 lines below creates a button at (x, y) coordinates and its 20x20 size
 		invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR ButtonText, \ 
 				WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \ 
-				y, x, 20, 20, hWnd, ButtonID, hInstance, NULL
+				x, y, 20, 20, hWnd, ButtonID, hInstance, NULL
+
+		inc ButtonID
 		add x, 20	; move X value to right by 20 pixels
 		pop ecx		; returning (from stack) saved value of ECX
 		loop POLO
 	pop ecx		; bring outer counter to continue
 	add y, 20	; move Y value to right by 20 pixels
-	mov x, 20	; reset X to default value
+	mov x, 35	; reset X to default value
 
 	loop MARCO
 	ret
@@ -139,13 +141,24 @@ createWindow:
 
 ; TODO: interaction with buttons goes here
 checkCommand:
-	; use wParam and lParam here
+	cmp lParam, 0
+	jne buttonClick
 	;invoke DestroyWindow, hWnd
 	jmp xorEAX
 
 defaultWindow:
 	invoke DefWindowProc, hWnd, uMsg, wParam, lParam
 	jmp endProc
+
+buttonClick:
+	mov eax, wParam
+	shr eax, 16
+	cmp ax, BN_CLICKED
+	je removeButton
+
+removeButton:
+	;invoke MessageBox, NULL, NULL, ADDR AppName, MB_OK
+	;invoke DestroyWindow, ButtonID
 
 xorEAX:
 	xor eax, eax
