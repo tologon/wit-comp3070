@@ -15,12 +15,12 @@ AppName			BYTE "Minesweeper", 0
 ButtonClassName	BYTE "button", 0 
 x				WORD 35
 y				WORD 20
-ButtonID		WORD 1		; The control ID of the button control 
+ButtonID		DWORD 0 ; The control ID of the button control
 
 .data?
-hInstance	HINSTANCE ? 
-CommandLine	LPSTR ? 
-hwndButton	HWND ? 
+hInstance	HINSTANCE ?
+CommandLine	LPSTR ?
+hButtons DWORD 81 DUP(?)
 ; ___________________________________ CODE _____________________________________________________
 .code
 main PROC
@@ -60,7 +60,7 @@ WinMain PROC hInst:HINSTANCE
 				CW_USEDEFAULT, CW_USEDEFAULT, \ 
 				250, 280, NULL, NULL, hInst ,NULL 
     mov		hwnd, eax 
- 
+
 
 MESSAGES:
     invoke GetMessage, ADDR msg, NULL, NULL, NULL
@@ -73,6 +73,7 @@ MESSAGES:
 
 	invoke	UpdateWindow, hwnd
 	invoke	ShowWindow, hwnd, SW_SHOWNORMAL 
+
 	jmp MESSAGES
 
 endProc:
@@ -86,30 +87,32 @@ WinMain ENDP
 generateButtons PROC USES ecx ebx hWnd:HWND
 ; _______________________________________________________________________________
 	mov ecx, 9	; OUTER LOOP
+	mov esi, OFFSET hButtons
 MARCO:
 	push ecx	; keep outer counter for later
 	mov ecx, 9	; INNER LOOP
 	POLO:
 		push ecx	; saving ECX value on stack just to be safe
+		push esi
+		invoke	GetModuleHandle, NULL
+		pop esi
+		mov	[esi], eax ; unique handle for a button
 		; 3 lines below creates a button at (x, y) coordinates and its 20x20 size
-		invoke CreateWindowEx, NULL, ADDR ButtonClassName, NULL, \ 
-				WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \ 
-				x, y, 20, 20, hWnd, ButtonID, hInstance, NULL
+		invoke CreateWindowEx, NULL, ADDR ButtonClassName, NULL, \
+				WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
+				x, y, 20, 20, hWnd, ButtonID, [esi], NULL
 
-		inc ButtonID
+		mov [esi], eax
+		add esi, type hButtons	; increment to the next item in array
+		add ButtonID, type hButtons ; use button ID to increment into array later on
 		add x, 20	; move X value to right by 20 pixels
 		pop ecx		; returning (from stack) saved value of ECX
 		loop POLO
 	pop ecx		; bring outer counter to continue
 	add y, 20	; move Y value to right by 20 pixels
 	mov x, 35	; reset X to default value
-
 	loop MARCO
-	invoke	GetModuleHandle, NULL
-	mov		hwndButton, eax
-	invoke CreateWindowEx, NULL, ADDR ButtonClassName, NULL, \ 
-			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \ 
-			x, y, 20, 20, hWnd, ButtonID, hwndButton, NULL
+	
 	ret
 generateButtons ENDP
 
@@ -133,7 +136,6 @@ destroyWindow:
 
 createWindow:
 	invoke generateButtons, hWnd
-	mov hwndButton, eax
 	jmp xorEAX
 
 ; TODO: interaction with buttons goes here
@@ -155,8 +157,10 @@ buttonClick:
 	jmp endProc
 
 removeButton:
-	;invoke MessageBox, NULL, NULL, ADDR AppName, MB_OK
-	invoke DestroyWindow, hwndButton
+	mov esi, OFFSET hButtons
+	mov ebx, wParam
+	mov edx, [esi+ebx]
+	invoke DestroyWindow, [esi+ebx]
 
 xorEAX:
 	xor eax, eax
