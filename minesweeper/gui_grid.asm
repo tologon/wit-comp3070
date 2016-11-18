@@ -4,13 +4,10 @@ TITLE Minesweeper
 .model flat,stdcall ; required directives
 option casemap:none	; required property
 
-INCLUDE \masm32\include\windows.inc
-INCLUDE \masm32\include\user32.inc
-INCLUDE \masm32\include\kernel32.inc
 INCLUDE Grid32.inc
 ; ____________________________ DATA & DEFINITIONS ______________________________________________
 WinMain			PROTO	:DWORD
-generateGrid	PROTO	:DWORD
+generateButtons	PROTO	:DWORD
 
 .data 
 ClassName		BYTE "SimpleWinClass", 0 
@@ -86,7 +83,7 @@ WinMain ENDP
 ; _______________________________________________________________________________
 ; This procedure generates grid in forms of buttons (that's the best solution
 ; we have so far). This grid acts as a outer layer in the game.
-generateGrid PROC USES ecx ebx hWnd:HWND
+generateButtons PROC USES ecx ebx hWnd:HWND
 ; _______________________________________________________________________________
 	mov ecx, 9	; OUTER LOOP
 MARCO:
@@ -114,7 +111,7 @@ MARCO:
 			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \ 
 			x, y, 20, 20, hWnd, ButtonID, hwndButton, NULL
 	ret
-generateGrid ENDP
+generateButtons ENDP
 
 ; _____________________________________________________________
 ; This procedure receives messages and acts accordingly.
@@ -135,7 +132,7 @@ destroyWindow:
 	jmp xorEAX
 
 createWindow:
-	invoke generateGrid, hWnd
+	invoke generateButtons, hWnd
 	mov hwndButton, eax
 	jmp xorEAX
 

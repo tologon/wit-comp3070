@@ -1,6 +1,9 @@
 ; All credit to KIP IRVINE for the Randomize, Random32, and RandomRange Procedures
 ; I have moved those procedures to this include file for compatibility with the MASM32 Libraries
 
+INCLUDE \masm32\include\windows.inc
+INCLUDE \masm32\include\user32.inc
+INCLUDE \masm32\include\kernel32.inc
 .data
 sysTime SYSTEMTIME <>
 
