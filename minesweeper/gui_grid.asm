@@ -14,9 +14,7 @@ generateGrid	PROTO	:DWORD
 .data 
 ClassName		BYTE "SimpleWinClass", 0 
 AppName			BYTE "Minesweeper", 0 
-MenuName		BYTE "FirstMenu", 0 
 ButtonClassName	BYTE "button", 0 
-ButtonText		BYTE " ", 0 
 x				WORD 35
 y				WORD 20
 ButtonID		WORD 1		; The control ID of the button control 
@@ -25,12 +23,6 @@ ButtonID		WORD 1		; The control ID of the button control
 hInstance	HINSTANCE ? 
 CommandLine	LPSTR ? 
 hwndButton	HWND ? 
-
-.const 
-IDM_HELLO	equ 1 
-IDM_CLEAR	equ 2 
-IDM_GETTEXT	equ 3 
-IDM_EXIT	equ 4
 ; ___________________________________ CODE _____________________________________________________
 .code
 main PROC
@@ -57,7 +49,7 @@ WinMain PROC hInst:HINSTANCE
     push	hInst 
     pop		wc.hInstance 
     mov		wc.hbrBackground, COLOR_BTNFACE+1 
-    mov		wc.lpszMenuName, OFFSET MenuName 
+    ;mov	wc.lpszMenuName, OFFSET MenuName 
     mov		wc.lpszClassName, OFFSET ClassName 
     invoke	LoadIcon, NULL, IDI_APPLICATION 
     mov		wc.hIcon, eax 
@@ -68,10 +60,9 @@ WinMain PROC hInst:HINSTANCE
     invoke	CreateWindowEx, WS_EX_CLIENTEDGE, ADDR ClassName, \ 
 				ADDR AppName, WS_OVERLAPPEDWINDOW, \ 
 				CW_USEDEFAULT, CW_USEDEFAULT, \ 
-				200, 250, NULL, NULL, hInst ,NULL 
+				250, 280, NULL, NULL, hInst ,NULL 
     mov		hwnd, eax 
-    invoke	ShowWindow, hwnd, SW_SHOWNORMAL 
-    invoke	UpdateWindow, hwnd
+ 
 
 MESSAGES:
     invoke GetMessage, ADDR msg, NULL, NULL, NULL
@@ -80,7 +71,10 @@ MESSAGES:
 	je endProc	; yes: end the program
 
     invoke TranslateMessage, ADDR msg 
-    invoke DispatchMessage, ADDR msg 
+    invoke DispatchMessage, ADDR msg
+
+	invoke	UpdateWindow, hwnd
+	invoke	ShowWindow, hwnd, SW_SHOWNORMAL 
 	jmp MESSAGES
 
 endProc:
@@ -100,7 +94,7 @@ MARCO:
 	POLO:
 		push ecx	; saving ECX value on stack just to be safe
 		; 3 lines below creates a button at (x, y) coordinates and its 20x20 size
-		invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR ButtonText, \ 
+		invoke CreateWindowEx, NULL, ADDR ButtonClassName, NULL, \ 
 				WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \ 
 				x, y, 20, 20, hWnd, ButtonID, hInstance, NULL
 
@@ -113,6 +107,11 @@ MARCO:
 	mov x, 35	; reset X to default value
 
 	loop MARCO
+	invoke	GetModuleHandle, NULL
+	mov		hwndButton, eax
+	invoke CreateWindowEx, NULL, ADDR ButtonClassName, NULL, \ 
+			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \ 
+			x, y, 20, 20, hWnd, ButtonID, hwndButton, NULL
 	ret
 generateGrid ENDP
 
@@ -155,10 +154,11 @@ buttonClick:
 	shr eax, 16
 	cmp ax, BN_CLICKED
 	je removeButton
+	jmp endProc
 
 removeButton:
 	;invoke MessageBox, NULL, NULL, ADDR AppName, MB_OK
-	;invoke DestroyWindow, ButtonID
+	invoke DestroyWindow, hwndButton
 
 xorEAX:
 	xor eax, eax
