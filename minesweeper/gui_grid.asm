@@ -16,6 +16,7 @@ ButtonClassName	BYTE "button", 0
 x				WORD 35
 y				WORD 20
 ButtonID		DWORD 0 ; The control ID of the button control
+lgfnt           LOGFONT <14,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,"Lucida Console"> ; Text font
 
 .data?
 hInstance	HINSTANCE ?
@@ -25,6 +26,7 @@ hButtons DWORD 81 DUP(?)
 .code
 main PROC
     invoke	GetModuleHandle, NULL
+	call PlaceMines
     mov		hInstance, eax
     invoke	WinMain, hInstance
     invoke	ExitProcess, eax
@@ -88,6 +90,7 @@ generateButtons PROC USES ecx ebx hWnd:HWND
 ; _______________________________________________________________________________
 	mov ecx, 9	; OUTER LOOP
 	mov esi, OFFSET hButtons
+	mov edi, OFFSET grid
 MARCO:
 	push ecx	; keep outer counter for later
 	mov ecx, 9	; INNER LOOP
@@ -122,12 +125,17 @@ generateButtons ENDP
 ; cell's value behind that button.
 WndProc PROC hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 ; _____________________________________________________________
+	LOCAL hDC:DWORD
+	LOCAL hFont:DWORD
+	LOCAL ps:PAINTSTRUCT
 	cmp uMsg, WM_DESTROY
 	je destroyWindow
 	cmp uMsg, WM_CREATE
 	je createWindow
 	cmp uMsg, WM_COMMAND
 	je checkCommand
+	cmp uMsg, WM_PAINT
+	je paintWindow
 	jmp defaultWindow
 
 destroyWindow:
@@ -144,6 +152,23 @@ checkCommand:
 	jne buttonClick
 	;invoke DestroyWindow, hWnd
 	jmp xorEAX
+	
+paintWindow:
+	invoke BeginPaint,hWnd,ADDR ps
+	mov hDC,eax
+	invoke CreateFontIndirect,ADDR lgfnt
+	mov hFont,eax
+	invoke SelectObject,hDC,hFont
+	mov ecx, 9
+	mov x, 35
+	mov y, 20
+	mov esi, offset grid
+	JoseMineLayer:
+		mov eax, 9
+		invoke TextOut,hDC,x,y,esi,eax
+		add esi, 9
+		add y, 20
+		loop JoseMineLayer
 
 defaultWindow:
 	invoke DefWindowProc, hWnd, uMsg, wParam, lParam
