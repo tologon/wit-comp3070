@@ -16,7 +16,7 @@ ButtonClassName	BYTE "button", 0
 x				WORD 35
 y				WORD 20
 ButtonID		DWORD 0 ; The control ID of the button control
-lgfnt           LOGFONT <14,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,"Lucida Console"> ; Text font
+lgfnt           LOGFONT <18,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,"Lucida Console"> ; Text font
 
 .data?
 hInstance	HINSTANCE ?
@@ -175,6 +175,7 @@ paintWindow:
 		mov x, 35
 		pop ecx
 		loop JoseMineSupplier
+	jmp xorEAX
 
 defaultWindow:
 	invoke DefWindowProc, hWnd, uMsg, wParam, lParam
