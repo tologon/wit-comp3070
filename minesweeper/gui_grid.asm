@@ -163,12 +163,18 @@ paintWindow:
 	mov x, 35
 	mov y, 20
 	mov esi, offset grid
-	JoseMineLayer:
-		mov eax, 9
-		invoke TextOut,hDC,x,y,esi,eax
-		add esi, 9
+	JoseMineSupplier:
+		push ecx
+		mov ecx, 9
+		JoseMineLayer:
+			invoke TextOut,hDC,x,y,esi,1
+			inc esi
+			add x, 20
+			loop JoseMineLayer
 		add y, 20
-		loop JoseMineLayer
+		mov x, 35
+		pop ecx
+		loop JoseMineSupplier
 
 defaultWindow:
 	invoke DefWindowProc, hWnd, uMsg, wParam, lParam
