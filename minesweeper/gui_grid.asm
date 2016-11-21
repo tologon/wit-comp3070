@@ -26,7 +26,6 @@ hButtons DWORD 81 DUP(?)
 .code
 main PROC
     invoke	GetModuleHandle, NULL
-	call PlaceMines
     mov		hInstance, eax
     invoke	WinMain, hInstance
     invoke	ExitProcess, eax
@@ -143,6 +142,7 @@ destroyWindow:
 	jmp xorEAX
 
 createWindow:
+	call PlaceMines
 	invoke generateButtons, hWnd
 	jmp xorEAX
 
