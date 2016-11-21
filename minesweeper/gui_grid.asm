@@ -25,6 +25,7 @@ hButtons DWORD 81 DUP(?)
 ; ___________________________________ CODE _____________________________________________________
 .code
 main PROC
+	call Randomize
     invoke	GetModuleHandle, NULL
     mov		hInstance, eax
     invoke	WinMain, hInstance
