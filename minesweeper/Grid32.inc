@@ -31,13 +31,17 @@ rowSize	= ($ - grid)
 
 ; Places 10 mines randomly throughout the grid.
 ; Uses ecx for loop count, esi for location of grid, and eax for random number generation.
-PlaceMines PROC uses ecx esi eax
+PlaceMines PROC uses ecx esi eax ebx
 	mov ecx, 10
 	MineLayer:
 		mov esi, offset grid
 		mov eax, 81
+		RandomRoll:
 		call RandomRange
 		add esi, eax
+		mov ebx, [esi]
+		cmp ebx, 42
+		je RandomRoll
 		call IncCells
 		mov eax, 42
 		mov [esi], al
