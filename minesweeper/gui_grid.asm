@@ -62,7 +62,8 @@ WinMain PROC hInst:HINSTANCE
 				CW_USEDEFAULT, CW_USEDEFAULT, \ 
 				250, 280, NULL, NULL, hInst ,NULL 
     mov		hwnd, eax 
-
+	invoke	UpdateWindow, hwnd
+	invoke	ShowWindow, hwnd, SW_SHOWNORMAL 
 
 MESSAGES:
     invoke GetMessage, ADDR msg, NULL, NULL, NULL
@@ -70,11 +71,8 @@ MESSAGES:
 	cmp eax, 0	; check if main window is closed
 	je endProc	; yes: end the program
 
-    invoke TranslateMessage, ADDR msg 
+    invoke TranslateMessage, ADDR msg
     invoke DispatchMessage, ADDR msg
-
-	invoke	UpdateWindow, hwnd
-	invoke	ShowWindow, hwnd, SW_SHOWNORMAL 
 
 	jmp MESSAGES
 
@@ -193,7 +191,19 @@ removeButton:
 	mov esi, OFFSET hButtons
 	mov ebx, wParam
 	mov edx, [esi+ebx]
-	invoke DestroyWindow, [esi+ebx]
+	
+	mov edi, OFFSET grid
+	push eax
+	mov eax, wParam
+	mov ebx, 4
+	div	bl
+	movzx eax, al
+	mov ecx, [edi+eax]
+	pop eax
+
+	cmp cl, '*'
+	je xorEAX
+	invoke DestroyWindow, edx
 
 xorEAX:
 	xor eax, eax
