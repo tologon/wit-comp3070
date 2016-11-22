@@ -48,7 +48,7 @@ WinMain PROC hInst:HINSTANCE
     mov		wc.cbWndExtra, NULL 
     push	hInst 
     pop		wc.hInstance 
-    mov		wc.hbrBackground, COLOR_BTNFACE+1 
+    mov		wc.hbrBackground, COLOR_BTNFACE
     ;mov	wc.lpszMenuName, OFFSET MenuName 
     mov		wc.lpszClassName, OFFSET ClassName 
     invoke	LoadIcon, NULL, IDI_APPLICATION 
