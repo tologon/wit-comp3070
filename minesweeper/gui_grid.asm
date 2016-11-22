@@ -21,7 +21,6 @@ lgfnt           LOGFONT <18,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,"Lucida Console"> ; 
 .data?
 hInstance	HINSTANCE ?
 CommandLine	LPSTR ?
-hButtons DWORD 81 DUP(?)
 ; ___________________________________ CODE _____________________________________________________
 .code
 main PROC
@@ -188,19 +187,10 @@ buttonClick:
 	jmp endProc
 
 removeButton:
-	mov esi, OFFSET hButtons
-	mov ebx, wParam
-	mov edx, [esi+ebx]
-	
-	mov edi, OFFSET grid
-	push eax
+	;push eax
 	mov eax, wParam
-	mov ebx, 4
-	div	bl
-	movzx eax, al
-	mov ecx, [edi+eax]
-	pop eax
-
+	call removeButtons
+	;pop eax
 	cmp cl, '*'
 	je xorEAX
 	invoke DestroyWindow, edx
