@@ -36,17 +36,14 @@ PlaceMines PROC uses ecx esi eax ebx
 	MineLayer:
 		mov esi, offset grid
 		mov eax, 81
-		RandomRoll:
 		call RandomRange
 		add esi, eax
-		mov ebx, [esi]
-		cmp ebx, 42
-		je RandomRoll
+		mov bl, [esi]
+		cmp bl, 42
+		je MineLayer
 		call IncCells
 		mov eax, 42
 		mov [esi], al
-
-		
 		loop MineLayer
 	ret
 PlaceMines ENDP
