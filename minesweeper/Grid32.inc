@@ -14,6 +14,9 @@
 .data
 sysTime SYSTEMTIME <> ; used to seed random number generator.
 
+; access grid cells using the following: [base + index],
+; where base is held in a base register
+; and index is held in an index register.
 ; 48 is the ascii character for zero,
 ; by default cells in the grid will consist of zero.
 grid	BYTE 9 DUP(48)
@@ -31,11 +34,12 @@ rowSize	= ($ - grid)
 
 ; Places 10 mines randomly throughout the grid.
 ; Uses ecx for loop count, esi for location of grid, and eax for random number generation.
-PlaceMines PROC uses ecx esi eax ebx
+PlaceMines PROC uses ecx esi eax
 	mov ecx, 10
 	MineLayer:
 		mov esi, offset grid
 		mov eax, 81
+		RandomRoll:
 		call RandomRange
 		add esi, eax
 		mov bl, [esi]
@@ -44,6 +48,8 @@ PlaceMines PROC uses ecx esi eax ebx
 		call IncCells
 		mov eax, 42
 		mov [esi], al
+
+		
 		loop MineLayer
 	ret
 PlaceMines ENDP
@@ -199,3 +205,46 @@ seed  DWORD 1
 
 	  ret
 Random32  ENDP
+
+
+.data
+hButtons DWORD 81 DUP(?)
+gridX BYTE ?
+gridY BYTE ?
+gridIndex BYTE ?
+btnX BYTE ?
+btnY BYTE ?
+btnIndex BYTE ?
+
+.code
+removeButtons PROC ; uses wParam in EAX register
+	mov esi, OFFSET hButtons
+	mov edx, [esi+eax]
+	
+	mov edi, OFFSET grid
+	mov ebx, 4
+	div	bl
+	movzx eax, al
+	mov ecx, [edi+eax]
+	ret
+removeButtons ENDP
+
+getGridValue PROC
+	ret
+getGridValue ENDP
+
+gridIndexToXY PROC
+	ret
+gridIndexToXY ENDP
+
+gridXYToIndex PROC
+	ret
+gridXYToIndex ENDP
+
+btnIndexToXY PROC
+	ret
+btnIndexToXY ENDP
+
+btnXYToIndex PROC
+	ret
+btnXYToIndex ENDP

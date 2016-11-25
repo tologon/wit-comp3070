@@ -23,32 +23,42 @@ rowSize	= ($ - grid)
 
 x	BYTE ?
 y	BYTE ?
-firstPrompt BYTE "Enter X & Y values (-1 to end the loop).", 0
+index DWORD ?
+cellValue BYTE "Cell value: ", 0
+
+promptXY BYTE "Enter X & Y values (-1 to end the loop).", 0
 promptX	BYTE "Enter X coordinate: ", 0
 promptY	BYTE "Enter Y coordinate: ", 0
-cellValue BYTE "Cell value: ", 0 
+promptIndex BYTE "Enter cell index (from 0 to 80): ", 0
 ; _____________________ CODE _________________________________
 .code
 main PROC
 	call Randomize
-	mov edx, OFFSET firstPrompt
-	call WriteString
-	call Crlf
+	;mov edx, OFFSET promptXY
+	;call WriteString
+	;call Crlf
 	call PlaceMines
 	call PrintGrid
-	INPUT:
-		call getInput
-		cmp x, -1
-		jle FINISH_IT
+	;INPUT:
+	;	call getXY
+	;	cmp x, -1
+	;	jle FINISH_IT
+	;
+	;	call printCellValue
+	;	jmp INPUT
 
+	mov ecx, 5
+	tologon:
+		call getIndex
+		call indexToXY
 		call printCellValue
-		jmp INPUT
+		loop tologon
 
 	FINISH_IT:
 		exit
 main ENDP
 
-getInput PROC USES eax edx
+getXY PROC USES eax edx
 	mov eax, 0
 	mov edx, OFFSET promptX
 	call WriteString
@@ -73,7 +83,7 @@ getInput PROC USES eax edx
 
 	END_PROC:
 		ret
-getInput ENDP
+getXY ENDP
 
 printCellValue PROC
 	mov eax, 0
@@ -111,4 +121,25 @@ setCellValue PROC
 	ret
 setCellValue ENDP
 
+indexToXY PROC uses EAX EDX 
+	mov eax, index
+	mov edx, rowSize
+	div dl ; AL = quotient (X), AH = remainder (Y)
+	mov x, al
+	mov y, ah
+	ret
+indexToXY ENDP
+
+getIndex PROC uses EDX EAX
+start:
+	mov edx, OFFSET promptIndex
+	call WriteString
+	call ReadInt
+	cmp eax, 0
+	jl start ; check if value is less than 0
+	cmp eax, 80
+	jg start ; check if value is greater than 80
+	mov index, eax
+	ret
+getIndex ENDP
 END main
