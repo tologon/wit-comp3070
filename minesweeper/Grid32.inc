@@ -14,6 +14,9 @@
 .data
 sysTime SYSTEMTIME <> ; used to seed random number generator.
 
+; access grid cells using the following: [base + index],
+; where base is held in a base register
+; and index is held in an index register.
 ; 48 is the ascii character for zero,
 ; by default cells in the grid will consist of zero.
 grid	BYTE 9 DUP(48)
@@ -202,6 +205,12 @@ Random32  ENDP
 
 .data
 hButtons DWORD 81 DUP(?)
+gridX BYTE ?
+gridY BYTE ?
+gridIndex BYTE ?
+btnX BYTE ?
+btnY BYTE ?
+btnIndex BYTE ?
 
 .code
 removeButtons PROC ; uses wParam in EAX register
@@ -215,6 +224,10 @@ removeButtons PROC ; uses wParam in EAX register
 	mov ecx, [edi+eax]
 	ret
 removeButtons ENDP
+
+getGridValue PROC
+	ret
+getGridValue ENDP
 
 gridIndexToXY PROC
 	ret
