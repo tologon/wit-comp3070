@@ -215,7 +215,11 @@ gridY WORD ?
 visited BYTE 81 DUP(81)
 
 .code
+; ______________________________________________
 removeButtons PROC ; uses wParam in EAX register
+; recursively removes buttons until it reaches
+; the edges (the flood-fill algorithm).
+; ______________________________________________
 	mov edi, OFFSET hButtons
 	mov edx, [edi+eax]
 	
@@ -255,7 +259,7 @@ xyToIndex PROC uses EAX
 xyToIndex ENDP
 
 ; __________________________________________
-addSurroundingCells PROC
+addSurroundingCells PROC uses EAX EBX
 ; this procedure adds surrounding cells
 ; into the stack and keeps the total number.
 ; Uses: ECX, stack
@@ -397,17 +401,17 @@ cell7: ; BOTTOM-RIGHT CELL *************************************************
 	movzx eax, gridX+1
 	movzx ebx, gridY+1
 	cmp eax, 0
-	jl endProc           ; skip to next cell if x < 0
+	jl endProc         ; skip to next cell if x < 0
 	cmp eax, 8
-	jg endProc           ; skip to next cell if x > 8
+	jg endProc         ; skip to next cell if x > 8
 	cmp ebx, 0
-	jl endProc           ; skip to next cell if y < 0
+	jl endProc         ; skip to next cell if y < 0
 	cmp ebx, 8
-	jg endProc           ; skip to next cell if y > 8
+	jg endProc         ; skip to next cell if y > 8
 	call xyToIndex     ; stores new index in gridIndex
 	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
 	cmp al, 1          ; if visited index
-	je endProc           ; already visited, skip to next cell
+	je endProc         ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
 	push gridIndex
 	inc ecx
@@ -416,7 +420,32 @@ endProc:
 	ret
 addSurroundingCells ENDP
 
-checkVisited PROC
+; _______________________________________
+checkVisited PROC uses ECX ESI EBX
+; checks whether cell at index
+; (stored in gridIndex) has been visited.
+; Uses: visited, gridIndex
+; _______________________________________
+	mov ecx, LENGTHOF visited
+	mov esi, OFFSET visited
+checkCells:
+	mov ebx, [esi]
+	cmp ebx, 81
+	je notVisitedAndExit  ; exit because match IS NOT found
+	cmp ebx, gridIndex
+	je visitedAndExit     ; exit because match IS found
+	inc esi
+	loop checkCells
+	
+visitedAndExit:
+	mov al, 1
+	jmp endProc
+
+notVisitedAndExit:
+	mov al, 0
+	jmp endProc
+
+endProc:
 	ret
 checkVisited ENDP
 
