@@ -216,18 +216,20 @@ visited BYTE 81 DUP(81)
 
 .code
 ; ______________________________________________
-removeButtons PROC ; uses wParam in EAX register
+removeButtons PROC uses EDI ESI EBX
 ; recursively removes buttons until it reaches
 ; the edges (the flood-fill algorithm).
+; Uses: EAX (wParam)
 ; ______________________________________________
-	mov edi, OFFSET hButtons
-	mov edx, [edi+eax]
-	
-	mov esi, OFFSET grid
-	mov ebx, 4
-	div	bl
-	movzx eax, al
-	mov ecx, [esi+eax]
+	;mov edi, OFFSET hButtons
+	;mov edx, [edi+eax]
+	;mov esi, OFFSET grid
+	;mov ebx, 4
+	;div	bl
+	;movzx eax, al
+	;mov ecx, [esi+eax]
+
+
 	ret
 removeButtons ENDP
 

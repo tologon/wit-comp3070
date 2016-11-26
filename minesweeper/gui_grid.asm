@@ -187,13 +187,11 @@ buttonClick:
 	jmp endProc
 
 removeButton:
-	;push eax
 	mov eax, wParam
 	call removeButtons
-	;pop eax
-	cmp cl, '*'
-	je xorEAX
-	invoke DestroyWindow, edx
+	;cmp cl, '*'
+	;je xorEAX
+	;invoke DestroyWindow, edx
 
 xorEAX:
 	xor eax, eax
