@@ -449,6 +449,28 @@ endProc:
 	ret
 checkVisited ENDP
 
-visitCell PROC
+; _____________________________
+visitCell PROC uses ECX ESI EAX
+; visits a cell (at gridIndex).
+; Uses: visited, gridIndex
+; _____________________________
+	mov ecx, LENGTHOF visited
+	mov esi, OFFSET visited
+findCell:
+	mov eax, [esi]
+	cmp eax, 81
+	je visitAndQuit  ; quit because found the end of visited cells
+	jmp continueFind
+
+visitAndQuit:
+	mov eax, gridIndex
+	mov [esi], eax
+	jmp endProc
+
+continueFind:
+	inc esi
+	loop findCell
+
+endProc:
 	ret
 visitCell ENDP
