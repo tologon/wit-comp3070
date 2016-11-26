@@ -189,13 +189,12 @@ buttonClick:
 removeButton:
 	mov eax, wParam
 	call removeButtons
-	;cmp cl, '*'
-	;je xorEAX
-	;invoke DestroyWindow, edx
 
 xorEAX:
 	xor eax, eax
 endProc:
     ret 
 WndProc ENDP
+
+
 END main

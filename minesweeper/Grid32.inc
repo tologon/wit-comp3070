@@ -206,9 +206,12 @@ Random32  ENDP
 
 .data
 hButtons DWORD 81 DUP(?)
+buttonIndex DWORD ?
 gridIndex DWORD ?
 gridX WORD ?
 gridY WORD ?
+
+tmpButtonIndex DWORD ?
 
 ; all existing indices fall in range between 0 and 80.
 ; therefore, if encountered 81, it means the end of visited indices
@@ -216,22 +219,44 @@ visited BYTE 81 DUP(81)
 
 .code
 ; ______________________________________________
-removeButtons PROC uses EDI ESI EBX
+removeButtons PROC uses EDI ESI EBX EDX
 ; recursively removes buttons until it reaches
 ; the edges (the flood-fill algorithm).
 ; Uses: EAX (wParam)
 ; ______________________________________________
-	;mov edi, OFFSET hButtons
-	;mov edx, [edi+eax]
-	;mov esi, OFFSET grid
-	;mov ebx, 4
-	;div	bl
-	;movzx eax, al
-	;mov ecx, [esi+eax]
+	; pre-algorithm work
+	mov esi, OFFSET grid
+	mov ebx, 4
+	div bl
+	movzx eax, al
+	mov gridIndex, eax
+	mov ecx, [esi+eax]
+	cmp cl, '*'
+	je endProc
 
+	call getButtonIndex
+	mov eax, buttonIndex
+	mov edi, OFFSET hButtons
+	mov edx, [edi+eax]
+	invoke DestroyWindow, edx
 
+endProc:
 	ret
 removeButtons ENDP
+
+; ________________________________
+getButtonIndex PROC uses EAX EBX
+; converts existing grid index
+; into corresponding button index.
+; Uses: gridIndex, buttonIndex
+; ________________________________
+	mov eax, gridIndex
+	mov bl, 4
+	mul bl
+	movzx eax, ax
+	mov buttonIndex, eax
+	ret
+getButtonIndex ENDP
 
 ; ____________________________________
 indexToXY PROC uses EAX EDX
