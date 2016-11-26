@@ -211,36 +211,60 @@ gridIndex DWORD ?
 gridX WORD ?
 gridY WORD ?
 
-tmpButtonIndex DWORD ?
+originalEAX DWORD ?
 
 ; all existing indices fall in range between 0 and 80.
-; therefore, if encountered 81, it means the end of visited indices
-visited BYTE 81 DUP(81)
+; therefore, if encountered 100, it means the end of visited indices
+visited BYTE 81 DUP(100)
 
 .code
-; ______________________________________________
-removeButtons PROC uses EDI ESI EBX EDX
+; _____________________________________________________________
+removeButtons PROC uses EDI ESI EBX EDX ECX
 ; recursively removes buttons until it reaches
 ; the edges (the flood-fill algorithm).
-; Uses: EAX (wParam)
-; ______________________________________________
+; Uses: EAX (wParam), ESI (grid pointer), EDI (buttons pointer)
+; _____________________________________________________________
 	; pre-algorithm work
-	mov esi, OFFSET grid
+	mov edi, OFFSET hButtons ; EDI holds reference to buttons
+	mov originalEAX, eax
+	mov esi, OFFSET grid     ; ESI holds reference to grid cells
 	mov ebx, 4
 	div bl
 	movzx eax, al
-	mov gridIndex, eax
-	mov ecx, [esi+eax]
-	cmp cl, '*'
-	je endProc
+	push eax ; push current grid index onto a stack
 
+	mov edx, 1 ; store total # of available cells on stack
+beginning:
+	cmp edx, 0
+	je endProc
+	pop eax ; get current grid index
+	dec edx ; decrement total # of available cells
+	mov ecx, [esi+eax]
+	cmp cl, '1'
+	jge openAndStop
+	jl checkZero ; need to be careful for values of less than '0' in ASCII
+	jmp beginning
+
+checkUpperLimit:
+	cmp cl, '8'
+	jle openAndStop
+	jmp beginning
+
+checkZero:
+	cmp cl, '0'
+	je openAndStop
+	jmp beginning
+
+openAndStop:
+	mov gridIndex, eax
 	call getButtonIndex
 	mov eax, buttonIndex
-	mov edi, OFFSET hButtons
 	mov edx, [edi+eax]
 	invoke DestroyWindow, edx
+	jmp beginning
 
 endProc:
+	mov eax, originalEAX
 	ret
 removeButtons ENDP
 
@@ -457,7 +481,7 @@ checkVisited PROC uses ECX ESI EBX
 	mov esi, OFFSET visited
 checkCells:
 	mov ebx, [esi]
-	cmp ebx, 81
+	cmp ebx, 100
 	je notVisitedAndExit  ; exit because match IS NOT found
 	cmp ebx, gridIndex
 	je visitedAndExit     ; exit because match IS found
@@ -485,7 +509,7 @@ visitCell PROC uses ECX ESI EAX
 	mov esi, OFFSET visited
 findCell:
 	mov eax, [esi]
-	cmp eax, 81
+	cmp eax, 100
 	je visitAndQuit  ; quit because found the end of visited cells
 	jmp continueFind
 
