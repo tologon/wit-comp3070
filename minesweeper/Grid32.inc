@@ -206,42 +206,220 @@ Random32  ENDP
 
 .data
 hButtons DWORD 81 DUP(?)
-gridX BYTE ?
-gridY BYTE ?
-gridIndex BYTE ?
-btnX BYTE ?
-btnY BYTE ?
-btnIndex BYTE ?
+gridIndex DWORD ?
+gridX WORD ?
+gridY WORD ?
+
+; all existing indices fall in range between 0 and 80.
+; therefore, if encountered 81, it means the end of visited indices
+visited BYTE 81 DUP(81)
 
 .code
 removeButtons PROC ; uses wParam in EAX register
-	mov esi, OFFSET hButtons
-	mov edx, [esi+eax]
+	mov edi, OFFSET hButtons
+	mov edx, [edi+eax]
 	
-	mov edi, OFFSET grid
+	mov esi, OFFSET grid
 	mov ebx, 4
 	div	bl
 	movzx eax, al
-	mov ecx, [edi+eax]
+	mov ecx, [esi+eax]
 	ret
 removeButtons ENDP
 
-getGridValue PROC
+; ____________________________________
+indexToXY PROC uses EAX EDX
+; this procedure converts a grid index
+; into X & Y coordinates.
+; Uses: EAX, EDX
+; ____________________________________
+	mov eax, gridIndex
+	mov edx, rowSize
+	div dx ; AX = quotient (X), DX = remainder (Y)
+	mov gridX, ax
+	mov gridY, dx
 	ret
-getGridValue ENDP
+indexToXY ENDP
 
-gridIndexToXY PROC
+; _______________________
+xyToIndex PROC uses EAX
+; this procedure converts
+;  X & Y into grid index.
+; Uses: EAX (X), EBX (Y)
+; _______________________
+	mov ecx, rowSize
+	mul cl          ; x * row size ->
+	add eax, ebx    ; result + y = index 
+	mov gridIndex, eax
 	ret
-gridIndexToXY ENDP
+xyToIndex ENDP
 
-gridXYToIndex PROC
-	ret
-gridXYToIndex ENDP
+; __________________________________________
+addSurroundingCells PROC
+; this procedure adds surrounding cells
+; into the stack and keeps the total number.
+; Uses: ECX, stack
+; __________________________________________
+	; TOP-LEFT CELL ********************************************************
+	movzx eax, gridX-1
+	movzx ebx, gridY-1
+	cmp eax, 0
+	jl cell1           ; skip to next cell if x < 0
+	cmp eax, 8
+	jg cell1           ; skip to next cell if x > 8
+	cmp ebx, 0
+	jl cell1           ; skip to next cell if y < 0
+	cmp ebx, 8
+	jg cell1           ; skip to next cell if y > 8
+	call xyToIndex     ; stores new index in gridIndex
+	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
+	cmp al, 1          ; if visited index
+	je cell1           ; already visited, skip to next cell
+	call visitCell     ; not visited, visit that cell & add it to stack
+	push gridIndex
+	inc ecx
+	
+cell1: ; TOP-MIDDLE CELL ***************************************************
+	movzx eax, gridX-1
+	movzx ebx, gridY
+	cmp eax, 0
+	jl cell2           ; skip to next cell if x < 0
+	cmp eax, 8
+	jg cell2           ; skip to next cell if x > 8
+	cmp ebx, 0
+	jl cell2           ; skip to next cell if y < 0
+	cmp ebx, 8
+	jg cell2           ; skip to next cell if y > 8
+	call xyToIndex     ; stores new index in gridIndex
+	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
+	cmp al, 1          ; if visited index
+	je cell2           ; already visited, skip to next cell
+	call visitCell     ; not visited, visit that cell & add it to stack
+	push gridIndex
+	inc ecx
 
-btnIndexToXY PROC
-	ret
-btnIndexToXY ENDP
+cell2: ; TOP-RIGHT CELL ****************************************************
+	movzx eax, gridX-1
+	movzx ebx, gridY+1
+	cmp eax, 0
+	jl cell3           ; skip to next cell if x < 0
+	cmp eax, 8
+	jg cell3           ; skip to next cell if x > 8
+	cmp ebx, 0
+	jl cell3           ; skip to next cell if y < 0
+	cmp ebx, 8
+	jg cell3           ; skip to next cell if y > 8
+	call xyToIndex     ; stores new index in gridIndex
+	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
+	cmp al, 1          ; if visited index
+	je cell3           ; already visited, skip to next cell
+	call visitCell     ; not visited, visit that cell & add it to stack
+	push gridIndex
+	inc ecx
 
-btnXYToIndex PROC
+cell3: ; LEFT CELL *********************************************************
+	movzx eax, gridX
+	movzx ebx, gridY-1
+	cmp eax, 0
+	jl cell4           ; skip to next cell if x < 0
+	cmp eax, 8
+	jg cell4           ; skip to next cell if x > 8
+	cmp ebx, 0
+	jl cell4           ; skip to next cell if y < 0
+	cmp ebx, 8
+	jg cell4           ; skip to next cell if y > 8
+	call xyToIndex     ; stores new index in gridIndex
+	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
+	cmp al, 1          ; if visited index
+	je cell4           ; already visited, skip to next cell
+	call visitCell     ; not visited, visit that cell & add it to stack
+	push gridIndex
+	inc ecx
+
+cell4: ; RIGHT CELL ********************************************************
+	movzx eax, gridX
+	movzx ebx, gridY+1
+	cmp eax, 0
+	jl cell5           ; skip to next cell if x < 0
+	cmp eax, 8
+	jg cell5           ; skip to next cell if x > 8
+	cmp ebx, 0
+	jl cell5           ; skip to next cell if y < 0
+	cmp ebx, 8
+	jg cell5           ; skip to next cell if y > 8
+	call xyToIndex     ; stores new index in gridIndex
+	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
+	cmp al, 1          ; if visited index
+	je cell5           ; already visited, skip to next cell
+	call visitCell     ; not visited, visit that cell & add it to stack
+	push gridIndex
+	inc ecx
+
+cell5: ; BOTTOM-LEFT CELL **************************************************
+	movzx eax, gridX+1
+	movzx ebx, gridY-1
+	cmp eax, 0
+	jl cell6           ; skip to next cell if x < 0
+	cmp eax, 8
+	jg cell6           ; skip to next cell if x > 8
+	cmp ebx, 0
+	jl cell6           ; skip to next cell if y < 0
+	cmp ebx, 8
+	jg cell6           ; skip to next cell if y > 8
+	call xyToIndex     ; stores new index in gridIndex
+	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
+	cmp al, 1          ; if visited index
+	je cell6           ; already visited, skip to next cell
+	call visitCell     ; not visited, visit that cell & add it to stack
+	push gridIndex
+	inc ecx
+
+cell6: ; BOTTOM-MIDDLE CELL ************************************************
+	movzx eax, gridX+1
+	movzx ebx, gridY
+	cmp eax, 0
+	jl cell7           ; skip to next cell if x < 0
+	cmp eax, 8
+	jg cell7           ; skip to next cell if x > 8
+	cmp ebx, 0
+	jl cell7           ; skip to next cell if y < 0
+	cmp ebx, 8
+	jg cell7           ; skip to next cell if y > 8
+	call xyToIndex     ; stores new index in gridIndex
+	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
+	cmp al, 1          ; if visited index
+	je cell7           ; already visited, skip to next cell
+	call visitCell     ; not visited, visit that cell & add it to stack
+	push gridIndex
+	inc ecx
+
+cell7: ; BOTTOM-RIGHT CELL *************************************************
+	movzx eax, gridX+1
+	movzx ebx, gridY+1
+	cmp eax, 0
+	jl endProc           ; skip to next cell if x < 0
+	cmp eax, 8
+	jg endProc           ; skip to next cell if x > 8
+	cmp ebx, 0
+	jl endProc           ; skip to next cell if y < 0
+	cmp ebx, 8
+	jg endProc           ; skip to next cell if y > 8
+	call xyToIndex     ; stores new index in gridIndex
+	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
+	cmp al, 1          ; if visited index
+	je endProc           ; already visited, skip to next cell
+	call visitCell     ; not visited, visit that cell & add it to stack
+	push gridIndex
+	inc ecx
+
+endProc:
 	ret
-btnXYToIndex ENDP
+addSurroundingCells ENDP
+
+checkVisited PROC
+	ret
+checkVisited ENDP
+
+visitCell PROC
+	ret
+visitCell ENDP
