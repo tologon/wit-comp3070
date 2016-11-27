@@ -307,7 +307,7 @@ indexToXY PROC uses EAX EDX ECX
 indexToXY ENDP
 
 ; _____________________________
-xyToIndex PROC uses EAX ECX EDX
+xyToIndex PROC uses ECX EDX
 ; this procedure converts
 ;  X & Y into grid index.
 ; Uses: EAX (X), EBX (Y)
@@ -325,9 +325,28 @@ addSurroundingCells PROC uses EAX EBX
 ; into the stack and keeps the total number.
 ; Uses: EDX, stack
 ; __________________________________________
-	; TOP-LEFT CELL ********************************************************
-	movzx eax, gridX-1
-	movzx ebx, gridY-1
+	; CURRENT CELL *********************************************************
+	movzx eax, gridX
+	movzx ebx, gridY
+	cmp al, 0
+	jl cell0           ; skip to next cell if x < 0
+	cmp al, 8
+	jg cell0           ; skip to next cell if x > 8
+	cmp bl, 0
+	jl cell0           ; skip to next cell if y < 0
+	cmp bl, 8
+	jg cell0           ; skip to next cell if y > 8
+	call xyToIndex     ; stores new index in gridIndex
+	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
+	cmp al, 1          ; if visited index
+	je cell0           ; already visited, skip to next cell
+	call visitCell     ; not visited, visit that cell & add it to stack
+
+cell0: ; TOP-LEFT CELL *****************************************************
+	movzx eax, gridX
+	dec eax
+	movzx ebx, gridY
+	dec ebx
 	cmp al, 0
 	jl cell1           ; skip to next cell if x < 0
 	cmp al, 8
@@ -341,11 +360,12 @@ addSurroundingCells PROC uses EAX EBX
 	cmp al, 1          ; if visited index
 	je cell1           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	push gridIndex
-	inc edx
+	;push gridIndex
+	;inc edx
 	
 cell1: ; TOP-MIDDLE CELL ***************************************************
-	movzx eax, gridX-1
+	movzx eax, gridX
+	dec eax
 	movzx ebx, gridY
 	cmp al, 0
 	jl cell2           ; skip to next cell if x < 0
@@ -360,12 +380,14 @@ cell1: ; TOP-MIDDLE CELL ***************************************************
 	cmp al, 1          ; if visited index
 	je cell2           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	push gridIndex
-	inc edx
+	;push gridIndex
+	;inc edx
 
 cell2: ; TOP-RIGHT CELL ****************************************************
-	movzx eax, gridX-1
-	movzx ebx, gridY+1
+	movzx eax, gridX
+	dec eax
+	movzx ebx, gridY
+	inc ebx
 	cmp al, 0
 	jl cell3           ; skip to next cell if x < 0
 	cmp al, 8
@@ -379,12 +401,13 @@ cell2: ; TOP-RIGHT CELL ****************************************************
 	cmp al, 1          ; if visited index
 	je cell3           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	push gridIndex
-	inc edx
+	;push gridIndex
+	;inc edx
 
 cell3: ; LEFT CELL *********************************************************
 	movzx eax, gridX
-	movzx ebx, gridY-1
+	movzx ebx, gridY
+	dec ebx
 	cmp al, 0
 	jl cell4           ; skip to next cell if x < 0
 	cmp al, 8
@@ -398,12 +421,13 @@ cell3: ; LEFT CELL *********************************************************
 	cmp al, 1          ; if visited index
 	je cell4           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	push gridIndex
-	inc edx
+	;push gridIndex
+	;inc edx
 
 cell4: ; RIGHT CELL ********************************************************
 	movzx eax, gridX
-	movzx ebx, gridY+1
+	movzx ebx, gridY
+	inc ebx
 	cmp al, 0
 	jl cell5           ; skip to next cell if x < 0
 	cmp al, 8
@@ -417,12 +441,14 @@ cell4: ; RIGHT CELL ********************************************************
 	cmp al, 1          ; if visited index
 	je cell5           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	push gridIndex
-	inc edx
+	;push gridIndex
+	;inc edx
 
 cell5: ; BOTTOM-LEFT CELL **************************************************
-	movzx eax, gridX+1
-	movzx ebx, gridY-1
+	movzx eax, gridX
+	inc eax
+	movzx ebx, gridY
+	dec ebx
 	cmp al, 0
 	jl cell6           ; skip to next cell if x < 0
 	cmp al, 8
@@ -436,11 +462,12 @@ cell5: ; BOTTOM-LEFT CELL **************************************************
 	cmp al, 1          ; if visited index
 	je cell6           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	push gridIndex
-	inc edx
+	;push gridIndex
+	;inc edx
 
 cell6: ; BOTTOM-MIDDLE CELL ************************************************
-	movzx eax, gridX+1
+	movzx eax, gridX
+	inc eax
 	movzx ebx, gridY
 	cmp al, 0
 	jl cell7           ; skip to next cell if x < 0
@@ -455,12 +482,14 @@ cell6: ; BOTTOM-MIDDLE CELL ************************************************
 	cmp al, 1          ; if visited index
 	je cell7           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	push gridIndex
-	inc edx
+	;push gridIndex
+	;inc edx
 
 cell7: ; BOTTOM-RIGHT CELL *************************************************
-	movzx eax, gridX+1
-	movzx ebx, gridY+1
+	movzx eax, gridX
+	inc eax
+	movzx ebx, gridY
+	inc ebx
 	cmp al, 0
 	jl endProc         ; skip to next cell if x < 0
 	cmp al, 8
@@ -474,26 +503,27 @@ cell7: ; BOTTOM-RIGHT CELL *************************************************
 	cmp al, 1          ; if visited index
 	je endProc         ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	push gridIndex
-	inc edx
+	;push gridIndex
+	;inc edx
 
 endProc:
 	ret
 addSurroundingCells ENDP
 
 ; _______________________________________
-checkVisited PROC uses ECX ESI EBX
+checkVisited PROC uses ECX ESI EBX EDX
 ; checks whether cell at index
 ; (stored in gridIndex) has been visited.
-; Uses: visited, gridIndex
+; Uses: EAX, visited, gridIndex
 ; _______________________________________
 	mov ecx, LENGTHOF visited
 	mov esi, OFFSET visited
+	mov edx, gridIndex
 checkCells:
 	mov ebx, [esi]
-	cmp ebx, 100
+	cmp bl, 100
 	je notVisitedAndExit  ; exit because match IS NOT found
-	cmp ebx, gridIndex
+	cmp ebx, edx
 	je visitedAndExit     ; exit because match IS found
 	inc esi
 	loop checkCells
@@ -519,7 +549,7 @@ visitCell PROC uses ECX ESI EAX
 	mov esi, OFFSET visited
 findCell:
 	mov eax, [esi]
-	cmp eax, 100
+	cmp al, 100
 	je visitAndQuit  ; quit because found the end of visited cells
 	jmp continueFind
 
