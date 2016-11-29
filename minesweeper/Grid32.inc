@@ -212,10 +212,13 @@ gridX WORD ?
 gridY WORD ?
 
 originalEAX DWORD ?
+cellsCount DWORD ?
 
 ; all existing indices fall in range between 0 and 80.
 ; therefore, if encountered 100, it means the end of visited indices
 visited BYTE 81 DUP(100)
+
+removedIndices BYTE 81 DUP(?)
 
 .code
 ; _____________________________________________________________
@@ -225,20 +228,27 @@ removeButtons PROC uses EDI ESI EBX EDX ECX
 ; Uses: EAX (wParam), ESI (grid pointer), EDI (buttons pointer)
 ; _____________________________________________________________
 	; pre-algorithm work
-	mov edi, OFFSET hButtons ; EDI holds reference to buttons
 	mov originalEAX, eax
 	mov esi, OFFSET grid     ; ESI holds reference to grid cells
 	mov ebx, 4
 	div bl
 	movzx eax, al
-	push eax ; push current grid index onto a stack
 
-	mov edx, 1 ; store total # of available cells on stack
+	mov edi, OFFSET removedIndices
+	mov cellsCount, 1
+	add edi, cellsCount
+	mov [edi], al
+	
 beginning:
-	cmp edx, 0
+	cmp cellsCount, 0
 	je endProc
-	pop eax ; get current grid index
-	dec edx ; decrement total # of available cells
+
+	mov edi, OFFSET removedIndices
+	add edi, cellsCount
+	mov al, [edi]
+	movzx eax, al
+	dec cellsCount ; decrement total # of available cells
+
 	mov ecx, [esi+eax]
 	cmp cl, '1'
 	jge checkUpperLimit
@@ -259,6 +269,7 @@ openMultipleCells:
 	mov gridIndex, eax
 	call getButtonIndex
 	mov eax, buttonIndex
+	mov edi, OFFSET hButtons ; EDI holds reference to buttons
 	mov edx, [edi+eax]
 	invoke DestroyWindow, edx
 	call indexToXY
@@ -269,6 +280,7 @@ openAndStop:
 	mov gridIndex, eax
 	call getButtonIndex
 	mov eax, buttonIndex
+	mov edi, OFFSET hButtons ; EDI holds reference to buttons
 	mov edx, [edi+eax]
 	invoke DestroyWindow, edx
 	jmp beginning
@@ -278,12 +290,12 @@ endProc:
 	ret
 removeButtons ENDP
 
-; ________________________________
-getButtonIndex PROC uses EAX EBX
+; __________________________________
+getButtonIndex PROC uses EAX EBX EDX
 ; converts existing grid index
 ; into corresponding button index.
 ; Uses: gridIndex, buttonIndex
-; ________________________________
+; __________________________________
 	mov eax, gridIndex
 	mov bl, 4
 	mul bl
@@ -320,7 +332,7 @@ xyToIndex PROC uses ECX EDX
 xyToIndex ENDP
 
 ; __________________________________________
-addSurroundingCells PROC uses EAX EBX
+addSurroundingCells PROC uses EAX EBX EDI
 ; this procedure adds surrounding cells
 ; into the stack and keeps the total number.
 ; Uses: EDX, stack
@@ -339,7 +351,7 @@ addSurroundingCells PROC uses EAX EBX
 	call xyToIndex     ; stores new index in gridIndex
 	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
 	cmp al, 1          ; if visited index
-	je cell0           ; already visited, skip to next cell
+	je endCellsAdding  ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
 
 cell0: ; TOP-LEFT CELL *****************************************************
@@ -360,8 +372,13 @@ cell0: ; TOP-LEFT CELL *****************************************************
 	cmp al, 1          ; if visited index
 	je cell1           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	;push gridIndex
-	;inc edx
+
+	mov edi, OFFSET removedIndices
+	inc cellsCount
+	add edi, cellsCount
+	mov eax, gridIndex
+	mov [edi], al
+	
 	
 cell1: ; TOP-MIDDLE CELL ***************************************************
 	movzx eax, gridX
@@ -380,8 +397,12 @@ cell1: ; TOP-MIDDLE CELL ***************************************************
 	cmp al, 1          ; if visited index
 	je cell2           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	;push gridIndex
-	;inc edx
+
+	mov edi, OFFSET removedIndices
+	inc cellsCount
+	add edi, cellsCount
+	mov eax, gridIndex
+	mov [edi], al
 
 cell2: ; TOP-RIGHT CELL ****************************************************
 	movzx eax, gridX
@@ -401,8 +422,12 @@ cell2: ; TOP-RIGHT CELL ****************************************************
 	cmp al, 1          ; if visited index
 	je cell3           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	;push gridIndex
-	;inc edx
+
+	mov edi, OFFSET removedIndices
+	inc cellsCount
+	add edi, cellsCount
+	mov eax, gridIndex
+	mov [edi], al
 
 cell3: ; LEFT CELL *********************************************************
 	movzx eax, gridX
@@ -421,8 +446,12 @@ cell3: ; LEFT CELL *********************************************************
 	cmp al, 1          ; if visited index
 	je cell4           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	;push gridIndex
-	;inc edx
+
+	mov edi, OFFSET removedIndices
+	inc cellsCount
+	add edi, cellsCount
+	mov eax, gridIndex
+	mov [edi], al
 
 cell4: ; RIGHT CELL ********************************************************
 	movzx eax, gridX
@@ -441,8 +470,12 @@ cell4: ; RIGHT CELL ********************************************************
 	cmp al, 1          ; if visited index
 	je cell5           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	;push gridIndex
-	;inc edx
+
+	mov edi, OFFSET removedIndices
+	inc cellsCount
+	add edi, cellsCount
+	mov eax, gridIndex
+	mov [edi], al
 
 cell5: ; BOTTOM-LEFT CELL **************************************************
 	movzx eax, gridX
@@ -462,8 +495,12 @@ cell5: ; BOTTOM-LEFT CELL **************************************************
 	cmp al, 1          ; if visited index
 	je cell6           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	;push gridIndex
-	;inc edx
+
+	mov edi, OFFSET removedIndices
+	inc cellsCount
+	add edi, cellsCount
+	mov eax, gridIndex
+	mov [edi], al
 
 cell6: ; BOTTOM-MIDDLE CELL ************************************************
 	movzx eax, gridX
@@ -482,8 +519,12 @@ cell6: ; BOTTOM-MIDDLE CELL ************************************************
 	cmp al, 1          ; if visited index
 	je cell7           ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	;push gridIndex
-	;inc edx
+
+	mov edi, OFFSET removedIndices
+	inc cellsCount
+	add edi, cellsCount
+	mov eax, gridIndex
+	mov [edi], al
 
 cell7: ; BOTTOM-RIGHT CELL *************************************************
 	movzx eax, gridX
@@ -491,22 +532,26 @@ cell7: ; BOTTOM-RIGHT CELL *************************************************
 	movzx ebx, gridY
 	inc ebx
 	cmp al, 0
-	jl endProc         ; skip to next cell if x < 0
+	jl endCellsAdding         ; skip to next cell if x < 0
 	cmp al, 8
-	jg endProc         ; skip to next cell if x > 8
+	jg endCellsAdding         ; skip to next cell if x > 8
 	cmp bl, 0
-	jl endProc         ; skip to next cell if y < 0
+	jl endCellsAdding         ; skip to next cell if y < 0
 	cmp bl, 8
-	jg endProc         ; skip to next cell if y > 8
+	jg endCellsAdding         ; skip to next cell if y > 8
 	call xyToIndex     ; stores new index in gridIndex
 	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
 	cmp al, 1          ; if visited index
-	je endProc         ; already visited, skip to next cell
+	je endCellsAdding         ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
-	;push gridIndex
-	;inc edx
 
-endProc:
+	mov edi, OFFSET removedIndices
+	inc cellsCount
+	add edi, cellsCount
+	mov eax, gridIndex
+	mov [edi], al
+
+endCellsAdding:
 	ret
 addSurroundingCells ENDP
 
