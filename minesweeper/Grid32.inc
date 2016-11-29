@@ -631,15 +631,6 @@ endProc:
 visitCell ENDP
 
 clearButtons PROC
-	mov x, 35
-	mov y, 30
-	mov ButtonID, 0
-	;push eax
-	;push edi
-	;push ecx
-	;mov edi, offset smiley
-	;mov edx, [edi]
-	;invoke DestroyWindow, eax
 	mov edi, offset hButtons
 	mov ecx, lengthof hButtons
 	wipeButtons:
@@ -649,8 +640,5 @@ clearButtons PROC
 		pop ecx
 		add edi, 4
 		loop wipeButtons
-	;pop eax
-	;pop ecx
-	;pop edi
 	ret
 clearButtons ENDP
