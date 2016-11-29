@@ -14,7 +14,7 @@ ClassName		BYTE "SimpleWinClass", 0
 AppName			BYTE "Minesweeper", 0 
 ButtonClassName	BYTE "button", 0 
 x				WORD 35
-y				WORD 20
+y				WORD 30
 ButtonID		DWORD 0 ; The control ID of the button control
 lgfnt           LOGFONT <18,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,"Lucida Console"> ; Text font
 
@@ -164,7 +164,7 @@ paintWindow:
 	invoke SelectObject,hDC,hFont
 	mov ecx, 9
 	mov x, 35
-	mov y, 20
+	mov y, 30
 	mov esi, offset grid
 	JoseMineSupplier:
 		push ecx
