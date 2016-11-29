@@ -135,6 +135,24 @@ IncCells PROC uses ebx edx
 	ret
 IncCells ENDP
 
+; clearGrid Procedure will replace all cells in the grid with a zero.
+; should be called before resetting the grid.
+; input	: none
+; output: the grid array will contain all zeroes (ascii characters, value == 48)
+; uses	: eax to store '0' -- value replacing grid bytes.
+;		: esi to store location of byte being changed
+;		: ecx for loop count (length of grid array)
+clearGrid PROC uses eax esi ecx
+	mov esi, offset grid
+	mov ecx, 81
+	mov al, 48
+	wipeGrid:
+		mov [esi], al
+		inc esi
+		loop wipeGrid
+	ret
+clearGrid ENDP
+
 ;--------------------------------------------------------
 Randomize PROC
 ;
@@ -611,3 +629,28 @@ continueFind:
 endProc:
 	ret
 visitCell ENDP
+
+clearButtons PROC
+	mov x, 35
+	mov y, 30
+	mov ButtonID, 0
+	;push eax
+	;push edi
+	;push ecx
+	;mov edi, offset smiley
+	;mov edx, [edi]
+	;invoke DestroyWindow, eax
+	mov edi, offset hButtons
+	mov ecx, lengthof hButtons
+	wipeButtons:
+		mov edx, [edi]
+		push ecx
+		invoke DestroyWindow, edx
+		pop ecx
+		add edi, 4
+		loop wipeButtons
+	;pop eax
+	;pop ecx
+	;pop edi
+	ret
+clearButtons ENDP

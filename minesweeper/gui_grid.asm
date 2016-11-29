@@ -89,7 +89,7 @@ generateButtons PROC USES ecx ebx hWnd:HWND
 	mov esi, offset smiley
 	invoke CreateWindowEx, NULL, ADDR ButtonClassName, NULL, \
 			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
-			115, 0, 20, 20, hWnd, ButtonID, [esi], NULL
+			115, 0, 20, 20, hWnd, 500, [esi], NULL
 	mov ecx, 9	; OUTER LOOP
 	mov esi, OFFSET hButtons
 	mov edi, OFFSET grid
@@ -186,6 +186,8 @@ defaultWindow:
 
 buttonClick:
 	mov eax, wParam
+	cmp eax, 500
+	je resetWindow
 	shr eax, 16
 	cmp ax, BN_CLICKED
 	je removeButton
@@ -194,6 +196,16 @@ buttonClick:
 removeButton:
 	mov eax, wParam
 	call removeButtons
+	jmp endProc
+	
+resetWindow:
+	call clearGrid
+	call clearButtons
+	call PlaceMines
+	mov x, 35
+	mov y, 30
+	mov ButtonID, 0
+	invoke generateButtons, hWnd
 
 xorEAX:
 	xor eax, eax
