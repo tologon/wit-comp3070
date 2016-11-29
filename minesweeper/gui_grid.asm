@@ -85,6 +85,11 @@ WinMain ENDP
 ; we have so far). This grid acts as a outer layer in the game.
 generateButtons PROC USES ecx ebx hWnd:HWND
 ; _______________________________________________________________________________
+	invoke	GetModuleHandle, NULL
+	mov esi, offset smiley
+	invoke CreateWindowEx, NULL, ADDR ButtonClassName, NULL, \
+			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
+			115, 0, 20, 20, hWnd, ButtonID, [esi], NULL
 	mov ecx, 9	; OUTER LOOP
 	mov esi, OFFSET hButtons
 	mov edi, OFFSET grid

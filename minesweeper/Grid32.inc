@@ -205,6 +205,7 @@ Random32  ENDP
 
 
 .data
+smiley DWORD ?
 hButtons DWORD 81 DUP(?)
 buttonIndex DWORD ?
 gridIndex DWORD ?
