@@ -19,16 +19,16 @@ sysTime SYSTEMTIME <> ; used to seed random number generator.
 ; and index is held in an index register.
 ; 48 is the ascii character for zero,
 ; by default cells in the grid will consist of zero.
-grid	BYTE 9 DUP(48)
+grid	BYTE 9 DUP('0')
 rowSize	= ($ - grid)
-		BYTE 9 DUP(48)
-		BYTE 9 DUP(48)
-		BYTE 9 DUP(48)
-		BYTE 9 DUP(48)
-		BYTE 9 DUP(48)
-		BYTE 9 DUP(48)
-		BYTE 9 DUP(48)
-		BYTE 9 DUP(48)
+		BYTE 9 DUP('0')
+		BYTE 9 DUP('0')
+		BYTE 9 DUP('0')
+		BYTE 9 DUP('0')
+		BYTE 9 DUP('0')
+		BYTE 9 DUP('0')
+		BYTE 9 DUP('0')
+		BYTE 9 DUP('0')
 
 .code
 
@@ -42,10 +42,10 @@ PlaceMines PROC uses ecx esi eax
 		call RandomRange
 		add esi, eax
 		mov bl, [esi]
-		cmp bl, 42
+		cmp bl, '*'
 		je MineLayer
 		call IncCells
-		mov eax, 42
+		mov eax, '*'
 		mov [esi], al
 		loop MineLayer
 	ret
@@ -74,7 +74,7 @@ IncCells PROC uses ebx edx
 		je Lower		; Ignore top 
 	Upper:
 		mov bl, [esi-9]
-		cmp bl, 42
+		cmp bl, '*'
 		je Lower
 		add [esi-9], dl
 	
@@ -82,7 +82,7 @@ IncCells PROC uses ebx edx
 		cmp al, 8
 		je Left
 		mov bl, [esi+9]
-		cmp bl, 42
+		cmp bl, '*'
 		je Left
 		add [esi+9], dl
 	
@@ -93,13 +93,13 @@ IncCells PROC uses ebx edx
 		cmp al, 0
 		je Left2
 		mov bl, [esi-10]
-		cmp bl, 42
+		cmp bl, '*'
 		je Left2
 		add [esi-10], dl
 		
 		Left2:
 		mov bl, [esi-1]
-		cmp bl, 42
+		cmp bl, '*'
 		je Left3
 		add [esi-1], dl
 		
@@ -107,7 +107,7 @@ IncCells PROC uses ebx edx
 		cmp al, 8
 		je Right
 		mov bl, [esi+8]
-		cmp bl, 42
+		cmp bl, '*'
 		je Right
 		add [esi+8], dl
 		
@@ -119,13 +119,13 @@ IncCells PROC uses ebx edx
 		cmp al,0
 		je Right2
 		mov bl, [esi-8]
-		cmp bl, 42
+		cmp bl, '*'
 		je Right2
 		add [esi-8], dl
 		
 		Right2:
 		mov bl, [esi+1]
-		cmp bl, 42
+		cmp bl, '*'
 		je Right3
 		add [esi+1], dl
 		
@@ -133,7 +133,7 @@ IncCells PROC uses ebx edx
 		cmp al, 8
 		je Done
 		mov bl, [esi+10]
-		cmp bl, 42
+		cmp bl, '*'
 		je Done
 		add [esi+10], dl
 	
@@ -151,7 +151,7 @@ IncCells ENDP
 clearGrid PROC uses eax esi ecx
 	mov esi, offset grid
 	mov ecx, 81
-	mov al, 48
+	mov al, '0'
 	wipeGrid:
 		mov [esi], al
 		inc esi
@@ -641,7 +641,8 @@ continueFind:
 endProc:
 	ret
 visitCell ENDP
-; 
+
+; clearButtons
 clearButtons PROC
 	mov edi, offset hButtons
 	mov ecx, lengthof hButtons
