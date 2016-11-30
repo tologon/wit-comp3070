@@ -271,12 +271,18 @@ beginning:
 	mov ecx, [esi+eax]
 	cmp cl, '1'
 	jge checkUpperLimit
-	jl checkZero ; need to be careful for values of less than '0' in ASCII
+	cmp cl, '*'
+	je explosion
+	jg checkZero ; need to be careful for values of less than '0' in ASCII
 	jmp beginning
 
 checkUpperLimit:
 	cmp cl, '8'
 	jle openAndStop
+	jmp beginning
+	
+explosion:
+	call clearButtons
 	jmp beginning
 
 checkZero:
