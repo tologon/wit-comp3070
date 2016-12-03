@@ -294,6 +294,7 @@ checkUpperLimit:
 
 explosion:
 	call clearButtons
+	call unvisitCells
 	jmp endProc
 
 checkZero:
@@ -666,3 +667,18 @@ clearButtons PROC uses edi ecx
 		loop wipeButtons
 	ret
 clearButtons ENDP
+
+;________________________________________
+unvisitCells PROC uses ESI ECX
+; when game restarts, set values in
+; array visited to back to default (100).
+;________________________________________
+	mov esi, OFFSET visited
+	mov ecx, LENGTHOF visited
+	mov al, 100
+resetCells:
+	mov [esi], al
+	inc esi ; visited is of BYTE type
+	loop resetCells
+	ret
+unvisitCells ENDP
