@@ -569,17 +569,17 @@ cell7: ; BOTTOM-RIGHT CELL *************************************************
 	movzx ebx, gridY
 	inc ebx
 	cmp al, 0
-	jl endCellsAdding         ; skip to next cell if x < 0
+	jl endCellsAdding  ; skip to next cell if x < 0
 	cmp al, 8
-	jg endCellsAdding         ; skip to next cell if x > 8
+	jg endCellsAdding  ; skip to next cell if x > 8
 	cmp bl, 0
-	jl endCellsAdding         ; skip to next cell if y < 0
+	jl endCellsAdding  ; skip to next cell if y < 0
 	cmp bl, 8
-	jg endCellsAdding         ; skip to next cell if y > 8
+	jg endCellsAdding  ; skip to next cell if y > 8
 	call xyToIndex     ; stores new index in gridIndex
 	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
 	cmp al, 1          ; if visited index
-	je endCellsAdding         ; already visited, skip to next cell
+	je endCellsAdding  ; already visited, skip to next cell
 	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
@@ -619,6 +619,7 @@ notVisitedAndExit:
 	jmp endProc
 
 endProc:
+	mov al, 0 ; TESTING SETUP, ALWAYS SET TO NOT VISITED, MIGHT CAUSE INFINITE LOOP
 	ret
 checkVisited ENDP
 
@@ -627,24 +628,8 @@ visitCell PROC uses ECX ESI EAX
 ; visits a cell (at gridIndex).
 ; Uses: visited, gridIndex
 ; _____________________________
-	mov ecx, LENGTHOF visited
-	mov esi, OFFSET visited
-findCell:
-	mov eax, [esi]
-	cmp al, 100
-	je visitAndQuit  ; quit because found the end of visited cells
-	jmp continueFind
-
-visitAndQuit:
-	mov eax, gridIndex
-	mov [esi], eax
-	jmp endProc
-
-continueFind:
-	inc esi
-	loop findCell
-
-endProc:
+	; TESTING THE USEFULNESS OF MARKING VISITED CELLS
+	; SO FAR IT SEEM TO IMPROVE THE CODE
 	ret
 visitCell ENDP
 
