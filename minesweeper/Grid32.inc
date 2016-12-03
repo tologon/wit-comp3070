@@ -284,7 +284,7 @@ beginning:
 	jge checkUpperLimit
 	cmp cl, '*'
 	je explosion
-	jg checkZero ; need to be careful for values than '0' in ASCII
+	jg checkZero ; need to be careful for values other than '0' in ASCII
 	jmp beginning
 
 checkUpperLimit:
@@ -294,7 +294,6 @@ checkUpperLimit:
 
 explosion:
 	call clearButtons
-	call unvisitCells
 	jmp endProc
 
 checkZero:
@@ -324,6 +323,7 @@ openAndStop:
 
 endProc:
 	mov eax, originalEAX
+	call unvisitCells
 	ret
 removeButtons ENDP
 
@@ -374,23 +374,6 @@ addSurroundingCells PROC uses EAX EBX EDI
 ; into the stack and keeps the total number.
 ; Uses: EDX, stack
 ; __________________________________________
-	; CURRENT CELL *********************************************************
-	movzx eax, gridX
-	movzx ebx, gridY
-	cmp al, 0
-	jl cell0           ; skip to next cell if x < 0
-	cmp al, 8
-	jg cell0           ; skip to next cell if x > 8
-	cmp bl, 0
-	jl cell0           ; skip to next cell if y < 0
-	cmp bl, 8
-	jg cell0           ; skip to next cell if y > 8
-	call xyToIndex     ; stores new index in gridIndex
-	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
-	cmp al, 1          ; if visited index
-	je endCellsAdding  ; already visited, skip to next cell
-	call visitCell     ; not visited, visit that cell & add it to stack
-
 cell0: ; TOP-LEFT CELL *****************************************************
 	movzx eax, gridX
 	dec eax
@@ -405,10 +388,6 @@ cell0: ; TOP-LEFT CELL *****************************************************
 	cmp bl, 8
 	jg cell1           ; skip to next cell if y > 8
 	call xyToIndex     ; stores new index in gridIndex
-	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
-	cmp al, 1          ; if visited index
-	je cell1           ; already visited, skip to next cell
-	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
 	add edi, removedCount
@@ -430,10 +409,6 @@ cell1: ; TOP-MIDDLE CELL ***************************************************
 	cmp bl, 8
 	jg cell2           ; skip to next cell if y > 8
 	call xyToIndex     ; stores new index in gridIndex
-	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
-	cmp al, 1          ; if visited index
-	je cell2           ; already visited, skip to next cell
-	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
 	add edi, removedCount
@@ -455,10 +430,6 @@ cell2: ; TOP-RIGHT CELL ****************************************************
 	cmp bl, 8
 	jg cell3           ; skip to next cell if y > 8
 	call xyToIndex     ; stores new index in gridIndex
-	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
-	cmp al, 1          ; if visited index
-	je cell3           ; already visited, skip to next cell
-	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
 	add edi, removedCount
@@ -479,10 +450,6 @@ cell3: ; LEFT CELL *********************************************************
 	cmp bl, 8
 	jg cell4           ; skip to next cell if y > 8
 	call xyToIndex     ; stores new index in gridIndex
-	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
-	cmp al, 1          ; if visited index
-	je cell4           ; already visited, skip to next cell
-	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
 	add edi, removedCount
@@ -503,10 +470,6 @@ cell4: ; RIGHT CELL ********************************************************
 	cmp bl, 8
 	jg cell5           ; skip to next cell if y > 8
 	call xyToIndex     ; stores new index in gridIndex
-	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
-	cmp al, 1          ; if visited index
-	je cell5           ; already visited, skip to next cell
-	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
 	add edi, removedCount
@@ -528,10 +491,6 @@ cell5: ; BOTTOM-LEFT CELL **************************************************
 	cmp bl, 8
 	jg cell6           ; skip to next cell if y > 8
 	call xyToIndex     ; stores new index in gridIndex
-	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
-	cmp al, 1          ; if visited index
-	je cell6           ; already visited, skip to next cell
-	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
 	add edi, removedCount
@@ -552,10 +511,6 @@ cell6: ; BOTTOM-MIDDLE CELL ************************************************
 	cmp bl, 8
 	jg cell7           ; skip to next cell if y > 8
 	call xyToIndex     ; stores new index in gridIndex
-	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
-	cmp al, 1          ; if visited index
-	je cell7           ; already visited, skip to next cell
-	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
 	add edi, removedCount
@@ -577,10 +532,6 @@ cell7: ; BOTTOM-RIGHT CELL *************************************************
 	cmp bl, 8
 	jg endCellsAdding  ; skip to next cell if y > 8
 	call xyToIndex     ; stores new index in gridIndex
-	call checkVisited  ; returns answer (index VISITED or NOT VISITED) in AL
-	cmp al, 1          ; if visited index
-	je endCellsAdding  ; already visited, skip to next cell
-	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
 	add edi, removedCount
@@ -638,7 +589,7 @@ visitCell ENDP
 ; This procedure should be called when a game ends,
 ; Or when the reset button is clicked
 ; USES: EDI for location of hButtons array
-;			: ECX for length of hButtons (loop count)
+;	  : ECX for length of hButtons (loop count)
 ; ______________________________________________________________________________
 clearButtons PROC uses edi ecx
 	mov edi, offset hButtons
