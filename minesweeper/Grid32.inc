@@ -6,7 +6,7 @@
 	include \masm32\include\gdi32.inc
 	include \masm32\include\kernel32.inc
 	include \masm32\include\masm32.inc
-	
+
 	includelib \masm32\lib\user32.lib
 	includelib \masm32\lib\gdi32.lib
 	includelib \masm32\lib\kernel32.lib
@@ -72,15 +72,15 @@ IncCells PROC uses ebx edx
 	mov bl, 9
 	div bl				; puts quotient of index / 9 into al, remainder into ah
 	mov dl, 1
-	
+
 		cmp al, 0		; If target cell is in top row
-		je Lower		; Ignore top 
+		je Lower		; Ignore top
 	Upper:
 		mov bl, [esi-9]
 		cmp bl, '*'
 		je Lower
 		add [esi-9], dl
-	
+
 	Lower:
 		cmp al, 8
 		je Left
@@ -88,24 +88,24 @@ IncCells PROC uses ebx edx
 		cmp bl, '*'
 		je Left
 		add [esi+9], dl
-	
+
 	Left:
 		cmp ah, 0
 		je Right
-		
+
 		cmp al, 0
 		je Left2
 		mov bl, [esi-10]
 		cmp bl, '*'
 		je Left2
 		add [esi-10], dl
-		
+
 		Left2:
 		mov bl, [esi-1]
 		cmp bl, '*'
 		je Left3
 		add [esi-1], dl
-		
+
 		Left3:
 		cmp al, 8
 		je Right
@@ -113,25 +113,25 @@ IncCells PROC uses ebx edx
 		cmp bl, '*'
 		je Right
 		add [esi+8], dl
-		
-	
+
+
 	Right:
 		cmp ah, 8
 		je Done
-		
+
 		cmp al,0
 		je Right2
 		mov bl, [esi-8]
 		cmp bl, '*'
 		je Right2
 		add [esi-8], dl
-		
+
 		Right2:
 		mov bl, [esi+1]
 		cmp bl, '*'
 		je Right3
 		add [esi+1], dl
-		
+
 		Right3:
 		cmp al, 8
 		je Done
@@ -139,7 +139,7 @@ IncCells PROC uses ebx edx
 		cmp bl, '*'
 		je Done
 		add [esi+10], dl
-	
+
 	Done:
 	ret
 IncCells ENDP
@@ -240,13 +240,14 @@ gridX WORD ?
 gridY WORD ?
 
 originalEAX DWORD ?
-cellsCount DWORD ?
 
 ; all existing indices fall in range between 0 and 80.
 ; therefore, if encountered 100, it means the end of visited indices
 visited BYTE 81 DUP(100)
 
 removedIndices BYTE 81 DUP(?)
+removedIndex DWORD ? ; current index of a item in removedIndices array
+removedCount DWORD ? ; current count of items in removedIndices array
 
 .code
 ; _____________________________________________________________
@@ -262,37 +263,38 @@ removeButtons PROC uses EDI ESI EBX EDX ECX
 	div bl
 	movzx eax, al
 
+	mov removedIndex, 0
+	mov removedCount, 1
 	mov edi, OFFSET removedIndices
-	mov cellsCount, 1
-	add edi, cellsCount
-	mov [edi], al
-	
+	mov [edi], al ; store button index (most likely, passed via mouse click)
+
 beginning:
-	cmp cellsCount, 0
-	je endProc
+	mov ebx, removedCount
+	cmp removedIndex, ebx
+	jge endProc ; end if (item index) >= (items count)
 
 	mov edi, OFFSET removedIndices
-	add edi, cellsCount
-	mov al, [edi]
+	add edi, removedIndex
+	mov al, [edi] ; get button index at item index
 	movzx eax, al
-	dec cellsCount ; decrement total # of available cells
+	inc removedIndex ; increment item index
 
 	mov ecx, [esi+eax]
 	cmp cl, '1'
 	jge checkUpperLimit
 	cmp cl, '*'
 	je explosion
-	jg checkZero ; need to be careful for values of less than '0' in ASCII
+	jg checkZero ; need to be careful for values than '0' in ASCII
 	jmp beginning
 
 checkUpperLimit:
 	cmp cl, '8'
 	jle openAndStop
 	jmp beginning
-	
+
 explosion:
 	call clearButtons
-	jmp beginning
+	jmp endProc
 
 checkZero:
 	cmp cl, '0'
@@ -303,7 +305,7 @@ openMultipleCells:
 	mov gridIndex, eax
 	call getButtonIndex
 	mov eax, buttonIndex
-	mov edi, OFFSET hButtons ; EDI holds reference to buttons
+	mov edi, OFFSET hButtons
 	mov edx, [edi+eax]
 	invoke DestroyWindow, edx
 	call indexToXY
@@ -314,7 +316,7 @@ openAndStop:
 	mov gridIndex, eax
 	call getButtonIndex
 	mov eax, buttonIndex
-	mov edi, OFFSET hButtons ; EDI holds reference to buttons
+	mov edi, OFFSET hButtons
 	mov edx, [edi+eax]
 	invoke DestroyWindow, edx
 	jmp beginning
@@ -360,7 +362,7 @@ xyToIndex PROC uses ECX EDX
 ; _____________________________
 	mov ecx, rowSize
 	mul cl          ; x * row size ->
-	add eax, ebx    ; result + y = index 
+	add eax, ebx    ; result + y = index
 	mov gridIndex, eax
 	ret
 xyToIndex ENDP
@@ -408,12 +410,12 @@ cell0: ; TOP-LEFT CELL *****************************************************
 	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
-	inc cellsCount
-	add edi, cellsCount
+	add edi, removedCount
 	mov eax, gridIndex
 	mov [edi], al
-	
-	
+	inc removedCount
+
+
 cell1: ; TOP-MIDDLE CELL ***************************************************
 	movzx eax, gridX
 	dec eax
@@ -433,10 +435,10 @@ cell1: ; TOP-MIDDLE CELL ***************************************************
 	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
-	inc cellsCount
-	add edi, cellsCount
+	add edi, removedCount
 	mov eax, gridIndex
 	mov [edi], al
+	inc removedCount
 
 cell2: ; TOP-RIGHT CELL ****************************************************
 	movzx eax, gridX
@@ -458,10 +460,10 @@ cell2: ; TOP-RIGHT CELL ****************************************************
 	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
-	inc cellsCount
-	add edi, cellsCount
+	add edi, removedCount
 	mov eax, gridIndex
 	mov [edi], al
+	inc removedCount
 
 cell3: ; LEFT CELL *********************************************************
 	movzx eax, gridX
@@ -482,10 +484,10 @@ cell3: ; LEFT CELL *********************************************************
 	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
-	inc cellsCount
-	add edi, cellsCount
+	add edi, removedCount
 	mov eax, gridIndex
 	mov [edi], al
+	inc removedCount
 
 cell4: ; RIGHT CELL ********************************************************
 	movzx eax, gridX
@@ -506,10 +508,10 @@ cell4: ; RIGHT CELL ********************************************************
 	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
-	inc cellsCount
-	add edi, cellsCount
+	add edi, removedCount
 	mov eax, gridIndex
 	mov [edi], al
+	inc removedCount
 
 cell5: ; BOTTOM-LEFT CELL **************************************************
 	movzx eax, gridX
@@ -531,10 +533,10 @@ cell5: ; BOTTOM-LEFT CELL **************************************************
 	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
-	inc cellsCount
-	add edi, cellsCount
+	add edi, removedCount
 	mov eax, gridIndex
 	mov [edi], al
+	inc removedCount
 
 cell6: ; BOTTOM-MIDDLE CELL ************************************************
 	movzx eax, gridX
@@ -555,10 +557,10 @@ cell6: ; BOTTOM-MIDDLE CELL ************************************************
 	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
-	inc cellsCount
-	add edi, cellsCount
+	add edi, removedCount
 	mov eax, gridIndex
 	mov [edi], al
+	inc removedCount
 
 cell7: ; BOTTOM-RIGHT CELL *************************************************
 	movzx eax, gridX
@@ -580,10 +582,10 @@ cell7: ; BOTTOM-RIGHT CELL *************************************************
 	call visitCell     ; not visited, visit that cell & add it to stack
 
 	mov edi, OFFSET removedIndices
-	inc cellsCount
-	add edi, cellsCount
+	add edi, removedCount
 	mov eax, gridIndex
 	mov [edi], al
+	inc removedCount
 
 endCellsAdding:
 	ret
@@ -606,7 +608,7 @@ checkCells:
 	je visitedAndExit     ; exit because match IS found
 	inc esi
 	loop checkCells
-	
+
 visitedAndExit:
 	mov al, 1
 	jmp endProc
@@ -645,11 +647,13 @@ endProc:
 	ret
 visitCell ENDP
 
+; ______________________________________________________________________________
 ; clearButtons destroys all grid buttons in the window by invoking DestroyWindow
 ; This procedure should be called when a game ends,
 ; Or when the reset button is clicked
-; USES		: EDI for location of hButtons array
+; USES: EDI for location of hButtons array
 ;			: ECX for length of hButtons (loop count)
+; ______________________________________________________________________________
 clearButtons PROC uses edi ecx
 	mov edi, offset hButtons
 	mov ecx, lengthof hButtons
