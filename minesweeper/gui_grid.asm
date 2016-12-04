@@ -201,6 +201,7 @@ removeButton:
 resetWindow:
 	call clearGrid
 	call clearButtons
+	call resetVisitedCells
 	call PlaceMines
 	mov x, 35
 	mov y, 30
