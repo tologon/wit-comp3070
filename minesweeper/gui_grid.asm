@@ -17,10 +17,10 @@ x				WORD 35
 y				WORD 30
 ButtonID		DWORD 0 ; The control ID of the button control
 lgfnt           LOGFONT <18,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,"Lucida Console"> ; Text font
+resetButtonText BYTE "Reset", 0
 
 .data?
 hInstance	HINSTANCE ?
-CommandLine	LPSTR ?
 ; ___________________________________ CODE _____________________________________________________
 .code
 main PROC
@@ -87,9 +87,9 @@ generateButtons PROC USES ecx ebx hWnd:HWND
 ; _______________________________________________________________________________
 	invoke	GetModuleHandle, NULL
 	mov esi, offset smiley
-	invoke CreateWindowEx, NULL, ADDR ButtonClassName, NULL, \
+	invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR resetButtonText, \
 			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
-			115, 0, 20, 20, hWnd, 500, [esi], NULL
+			100, 4, 52, 20, hWnd, 500, [esi], NULL
 	mov ecx, 9	; OUTER LOOP
 	mov esi, OFFSET hButtons
 	mov edi, OFFSET grid

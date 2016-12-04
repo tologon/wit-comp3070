@@ -238,8 +238,6 @@ buttonIndex DWORD ?
 gridIndex DWORD ?
 gridX WORD ?
 gridY WORD ?
-currentX WORD ?
-currentY WORD ?
 validCell BYTE ?
 
 originalEAX DWORD ?
