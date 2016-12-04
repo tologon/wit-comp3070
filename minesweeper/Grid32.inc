@@ -317,7 +317,21 @@ openMultipleCells:
 	call getGridXY
 	push ax ; current gridX
 	push bx ; current gridY
+	call openTopLeft
+
+	pop bx  ; current gridY
+	pop ax  ; current gridX
+	call storeGridXY
+	push ax ; current gridX
+	push bx ; current gridY
 	call openTopCenter
+	
+	pop bx  ; current gridY
+	pop ax  ; current gridX
+	call storeGridXY
+	push ax ; current gridX
+	push bx ; current gridY
+	call openTopRight
 
 	pop bx  ; current gridY
 	pop ax  ; current gridX
@@ -325,6 +339,13 @@ openMultipleCells:
 	push ax ; current gridX
 	push bx ; current gridY
 	call openLeft
+	
+	pop bx  ; current gridY
+	pop ax  ; current gridX
+	call storeGridXY
+	push ax ; current gridX
+	push bx ; current gridY
+	call openBottomLeft
 
 	pop bx  ; current gridY
 	pop ax  ; current gridX
@@ -332,6 +353,13 @@ openMultipleCells:
 	push ax ; current gridX
 	push bx ; current gridY
 	call openBottomCenter
+	
+	pop bx  ; current gridY
+	pop ax  ; current gridX
+	call storeGridXY
+	push ax ; current gridX
+	push bx ; current gridY
+	call openBottomRight
 
 	pop bx  ; current gridY
 	pop ax  ; current gridX
@@ -350,6 +378,17 @@ endProc:
 floodFill ENDP
 
 ; ________________
+openTopLeft PROC
+; ________________
+	call getGridXY
+	dec eax
+	dec ebx
+	call storeGridXY
+	call floodFill
+	ret
+openTopLeft ENDP
+
+; ________________
 openTopCenter PROC
 ; ________________
 	call getGridXY
@@ -358,6 +397,17 @@ openTopCenter PROC
 	call floodFill
 	ret
 openTopCenter ENDP
+
+; ________________
+openTopRight PROC
+; ________________
+	call getGridXY
+	dec eax
+	inc ebx
+	call storeGridXY
+	call floodFill
+	ret
+openTopRight ENDP
 
 ; ___________
 openLeft PROC
@@ -370,6 +420,17 @@ openLeft PROC
 openLeft ENDP
 
 ; ______________
+openBottomLeft PROC
+; ______________
+	call getGridXY
+	inc eax
+	dec ebx
+	call storeGridXY
+	call floodFill
+	ret
+openBottomLeft ENDP
+
+; ______________
 openBottomCenter PROC
 ; ______________
 	call getGridXY
@@ -379,7 +440,16 @@ openBottomCenter PROC
 	ret
 openBottomCenter ENDP
 
-
+; ______________
+openBottomRight PROC
+; ______________
+	call getGridXY
+	inc eax
+	inc ebx
+	call storeGridXY
+	call floodFill
+	ret
+openBottomRight ENDP
 
 ; _______________
 openRight PROC
@@ -566,7 +636,7 @@ resetVisitedCells PROC uses ESI ECX EAX
 ;________________________________________
 	mov esi, OFFSET visited
 	mov ecx, LENGTHOF visited
-	mov al, 100
+	mov al, 0
 resetCells:
 	mov [esi], al
 	inc esi ; visited is of BYTE type
