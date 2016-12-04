@@ -240,6 +240,7 @@ gridX WORD ?
 gridY WORD ?
 currentX WORD ?
 currentY WORD ?
+validCell BYTE ?
 
 originalEAX DWORD ?
 
@@ -273,19 +274,9 @@ setupAlgorithm ENDP
 ; _____________________________________
 floodFill PROC uses EAX EBX ECX EDI EDX
 ; _____________________________________
-	call getGridXY
-	cmp al, 0
-	jl endProc         ; return if x < 0
-	cmp al, 8
-	jg endProc         ; return if x > 8
-	cmp bl, 0
-	jl endProc         ; return if y < 0
-	cmp bl, 8
-	jg endProc         ; return if y > 8
-	call xyToIndex     ; stores new index in gridIndex
-	call checkVisited  ; returns answer (index VISITED = 1 or NOT VISITED = 0) in AL
-	cmp al, 1          ; if visited index
-	je endProc         ; already visited, skip to next cell
+	call isValidCell
+	cmp validCell, 0
+	je endProc
 	call visitCell     ; not visited, visit that cell
 
 	call getCellValue
@@ -376,6 +367,28 @@ openMultipleCells:
 endProc:
 	ret
 floodFill ENDP
+
+; ______________
+isValidCell PROC
+; ______________
+	mov validCell, 0
+	call getGridXY
+	cmp al, 0
+	jl endProc         ; return if x < 0
+	cmp al, 8
+	jg endProc         ; return if x > 8
+	cmp bl, 0
+	jl endProc         ; return if y < 0
+	cmp bl, 8
+	jg endProc         ; return if y > 8
+	call xyToIndex     ; stores new index in gridIndex
+	call checkVisited  ; returns answer (index VISITED = 1 or NOT VISITED = 0) in AL
+	cmp al, 1          ; if visited index
+	je endProc         ; already visited, skip to next cell
+	mov validCell, 1   ; this is valid cell, set variable to 1
+endProc:
+	ret
+isValidCell ENDP
 
 ; ________________
 openTopLeft PROC
