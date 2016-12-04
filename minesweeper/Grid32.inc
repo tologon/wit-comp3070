@@ -550,33 +550,10 @@ checkVisited PROC uses ESI EBX EDX
 ; (stored in gridIndex) has been visited.
 ; Uses: EAX, visited, gridIndex
 ; _______________________________________
-;	mov ecx, LENGTHOF visited
 	mov esi, OFFSET visited
 	mov edx, gridIndex
 	add esi, edx
 	mov al, [esi]
-;checkCells:
-;	mov ebx, [esi]
-;	cmp bl, 100
-;	je notVisitedAndExit  ; exit because match IS NOT found
-;	cmp ebx, edx
-;	je visitedAndExit     ; exit because match IS found
-;	jmp endOfLoop
-
-;visitedAndExit:
-;	mov al, 1
-;	jmp endProc
-
-;notVisitedAndExit:
-;	mov al, 0
-;	jmp endProc
-
-;endOfLoop:
-;	inc esi
-;	loop checkCells
-
-;endProc:
-;	mov al, 0
 	ret
 checkVisited ENDP
 
@@ -585,27 +562,11 @@ visitCell PROC uses ESI EBX EAX
 ; visits a cell (at gridIndex).
 ; Uses: visited, gridIndex
 ; _____________________________
-	;mov ecx, LENGTHOF visited
 	mov esi, OFFSET visited
-;findCell:
 	mov eax, gridIndex
 	add esi, eax
 	mov bl, 1
 	mov [esi], bl
-	;cmp al, 0
-	;je visitAndQuit  ; quit because found the end of visited cells
-	;jmp continueFind
-
-;visitAndQuit:
-;	mov eax, gridIndex
-;	mov [esi], al
-;	jmp endProc
-
-;continueFind:
-;	inc esi
-;	loop findCell
-
-;endProc:
 	ret
 visitCell ENDP
 
