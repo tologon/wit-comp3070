@@ -249,10 +249,225 @@ visited BYTE 81 DUP(100)
 
 removedIndices BYTE 81 DUP(-1)
 
-
 .code
+; ________________
+removeButtons PROC
+; ________________
+	mov originalEAX, eax
+	call setupAlgorithm ; do initial setup of flood-fill algorithm
+	call floodFill      ; recursively call flood-fill using values of gridX and gridY
+	mov eax, originalEAX
+	ret
+removeButtons ENDP
+
+;_______________________________
+setupAlgorithm PROC uses ESI EBX
+;_______________________________
+	mov esi, OFFSET grid
+	mov ebx, 4
+	div bl
+	movzx eax, al      ; grid index
+	mov gridIndex, eax ; save grid index
+	call indexToXY     ; turn grid index into X and Y values
+	ret
+setupAlgorithm ENDP
+
+; _____________________________________
+floodFill PROC uses EAX EBX ECX EDI EDX
+; _____________________________________
+	call storeXYinRegisters
+	cmp al, 0
+	jl endProc         ; return if x < 0
+	cmp al, 8
+	jg endProc         ; return if x > 8
+	cmp bl, 0
+	jl endProc         ; return if y < 0
+	cmp bl, 8
+	jg endProc         ; return if y > 8
+	call xyToIndex     ; stores new index in gridIndex
+	;call checkVisited  ; returns answer (index VISITED = 1 or NOT VISITED = 0) in AL
+	;cmp al, 1          ; if visited index
+	;je endProc         ; already visited, skip to next cell
+	;call visitCell     ; not visited, visit that cell
+
+	call getCellValue
+	cmp cl, '*'
+	je explosion
+	cmp cl, '1'
+	jge checkUpperLimit
+	cmp cl, '0'
+	je openMultipleCells
+	jmp endProc
+
+explosion:
+	call resetVisitedCells
+	call resetRemovedIndices
+	call clearButtons
+	jmp endProc
+
+checkUpperLimit:
+	cmp cl, '8'
+	jle openAndStop
+	jmp endProc
+
+openAndStop:
+	call openCell
+	jmp endProc
+
+openMultipleCells:
+	call openCell
+
+	call storeXYinRegisters
+	push ax
+	push bx
+	push ax
+	push bx
+	push ax
+	push bx
+	call openTopLeft
+
+	pop bx
+	pop ax
+	call openTopCenter
+
+	pop bx
+	pop ax
+	call openTopRight
+	
+	pop bx
+	pop ax
+	call openLeft
+	
+	;pop bx
+	;pop ax
+	;call openRight
+	
+	;pop bx
+	;pop ax
+	;call openBottomLeft
+
+	jmp endProc
+
+endProc:
+	ret
+floodFill ENDP
+
+; ______________
+openTopLeft PROC
+; ______________
+	;call storeXYinRegisters
+	dec eax
+	dec ebx
+	call storeXYinVariables
+	;mov gridX, ax
+	;mov gridY, bx
+	call floodFill
+	ret
+openTopLeft ENDP
+
+; ________________
+openTopCenter PROC
+; ________________
+	dec eax
+	call storeXYinVariables
+	;mov gridX, ax
+	;mov gridY, bx
+	call floodFill
+	ret
+openTopCenter ENDP
+
+; ______________
+openTopRight PROC
+; ______________
+;	call storeXYinRegisters
+	dec eax
+	inc ebx
+	call storeXYinVariables
+	;mov gridX, ax
+	;mov gridY, bx
+	call floodFill
+	ret
+openTopRight ENDP
+
+; ______________
+openLeft PROC
+; ______________
+;	call storeXYinRegisters
+	dec ebx
+	call storeXYinVariables
+	;mov gridX, ax
+	;mov gridY, bx
+	call floodFill
+	ret
+openLeft ENDP
+
+; ______________
+openRight PROC
+; ______________
+;	call storeXYinRegisters
+	inc ebx
+	call storeXYinVariables
+	;mov gridX, ax
+	;mov gridY, bx
+	call floodFill
+	ret
+openRight ENDP
+
+; ______________
+openBottomLeft PROC
+; ______________
+;	call storeXYinRegisters
+	dec ebx
+	inc eax
+	call storeXYinVariables
+	;mov gridX, ax
+	;mov gridY, bx
+	call floodFill
+	ret
+openBottomLeft ENDP
+
+; ______________________________________________
+openCell PROC uses EAX EDI EDX
+; delete current button / open current grid cell
+; ______________________________________________
+	call getButtonIndex
+	mov eax, buttonIndex
+	mov edi, OFFSET hButtons
+	mov edx, [edi+eax]
+	invoke DestroyWindow, edx
+	ret
+openCell ENDP
+
+; _______________________________
+getCellValue PROC uses ESI EAX
+; Returns: grid cell value in ECX
+; _______________________________
+	mov esi, OFFSET grid
+	call storeXYinRegisters
+	call xyToIndex
+	mov eax, gridIndex
+	mov ecx, [esi+eax]
+	ret
+getCellValue ENDP
+
+; _____________________
+storeXYinRegisters PROC
+; _____________________
+	movzx eax, gridX
+	movzx ebx, gridY
+	ret
+storeXYinRegisters ENDP
+
+; _____________________
+storeXYinVariables PROC
+; _____________________
+	mov gridX, ax
+	mov gridY, bx
+	ret
+storeXYinVariables ENDP
+
 ; _____________________________________________________________
-removeButtons PROC uses EDI ESI EBX EDX ECX
+oldRemoval PROC uses EDI ESI EBX EDX ECX
 ; recursively removes buttons until it reaches
 ; the edges (the flood-fill algorithm).
 ; Uses: EAX (wParam), ESI (grid pointer), EDI (buttons pointer)
@@ -328,7 +543,7 @@ openAndStop:
 endProc:
 	mov eax, originalEAX
 	ret
-removeButtons ENDP
+oldRemoval ENDP
 
 ; __________________________________
 getButtonIndex PROC uses EAX EBX EDX
@@ -609,7 +824,7 @@ endOfLoop:
 	loop checkCells
 
 endProc:
-	;mov al, 1 ; TESTING SETUP, ALWAYS SET TO NOT VISITED, MIGHT CAUSE INFINITE LOOP
+	mov al, 0
 	ret
 checkVisited ENDP
 
@@ -628,7 +843,7 @@ findCell:
 
 visitAndQuit:
 	mov eax, gridIndex
-	mov [esi], eax
+	mov [esi], al
 	jmp endProc
 
 continueFind:
@@ -674,7 +889,9 @@ resetCells:
 	ret
 resetVisitedCells ENDP
 
+; _______________________________________
 resetRemovedIndices PROC uses ESI ECX EAX
+; _______________________________________
 	mov esi, OFFSET removedIndices
 	mov ecx, LENGTHOF removedIndices
 	mov al, -1
