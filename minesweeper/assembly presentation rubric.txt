@@ -1,0 +1,35 @@
+PRESENTATION GRADE
+
+Clarity - 20%
+	speech
+	expression
+	should be able to understand project
+	all should speak
+	no explicit UMM
+
+
+Content - 20%
+	10 minutes
+	show:
+		functionality
+		features
+		prettiness
+		only make a powerpoint if it will add to the presentation
+		
+
+Knowledge - 20%
+	how does it work (ALL know how it works)
+	specifics
+
+Etiquette - 20%
+	Introduce selves
+	questions?
+	being presentable
+	business casual
+	posture
+	let everyone speak -- don't talk over others
+	eye contact (more than just durga)
+	address audience
+
+Prototype - 20%
+	functional requirements
