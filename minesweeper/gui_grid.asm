@@ -17,7 +17,12 @@ x				WORD 35
 y				WORD 30
 ButtonID		DWORD 0 ; The control ID of the button control
 lgfnt           LOGFONT <18,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,"Lucida Console"> ; Text font
+smiley DWORD ?
 resetButtonText BYTE "Reset", 0
+flagger DWORD ?
+flagButtonText BYTE "F", 0
+flagBool BYTE 0
+flagMsg BYTE "CURRENTLY IN FLAG MODE", 0
 
 .data?
 hInstance	HINSTANCE ?
@@ -90,6 +95,10 @@ generateButtons PROC USES ecx ebx hWnd:HWND
 	invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR resetButtonText, \
 			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
 			100, 4, 52, 20, hWnd, 500, [esi], NULL
+	mov esi, offset flagger
+	invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR flagButtonText, \
+			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
+			35, 4, 20, 20, hWnd, 501, [esi], NULL
 	mov ecx, 9	; OUTER LOOP
 	mov esi, OFFSET hButtons
 	mov edi, OFFSET grid
@@ -188,9 +197,34 @@ buttonClick:
 	mov eax, wParam
 	cmp eax, 500
 	je resetWindow
+	cmp eax, 501
+	je toggleFlag
 	shr eax, 16
+	cmp flagBool, 1
+	je flagButton
 	cmp ax, BN_CLICKED
 	je removeButton
+	jmp endProc
+	
+toggleFlag:
+	cmp flagBool, 0
+	je setflagMode
+	mov flagBool, 0
+	jmp endProc
+	
+	setflagMode:
+		mov flagBool, 1
+	jmp endProc
+	
+flagButton:
+	mov eax, wParam
+	call placeFlag
+	; HERE draw bitmap on top of button clicked (at wParam)
+	; you may need to calculate pixels based on the index of the button clicked
+	; I believe the index is stored in eax, or possibly the e part (why you shift right 16).
+	; so divide this by 9, add quotient to x pixels, remainder to y pixels
+	; also adjust for size of buttons (remember they are 20 x 20).
+	; GOOD LUCK WITH THAT TOLOGON
 	jmp endProc
 
 removeButton:
@@ -206,6 +240,7 @@ resetWindow:
 	mov x, 35
 	mov y, 30
 	mov ButtonID, 0
+	mov flagBool, 0
 	invoke generateButtons, hWnd
 
 xorEAX:

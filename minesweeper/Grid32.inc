@@ -232,7 +232,6 @@ Random32  ENDP
 
 
 .data
-smiley DWORD ?
 hButtons DWORD 81 DUP(?)
 buttonIndex DWORD ?
 gridIndex DWORD ?
@@ -580,6 +579,28 @@ visitCell PROC uses ESI EBX EAX
 	mov [esi], bl
 	ret
 visitCell ENDP
+
+;eax contains wparam from button.
+placeFlag PROC uses ESI EBX
+	mov esi, OFFSET visited
+	mov ebx, 4
+	div bl
+	movzx eax, al      ; grid index
+	add esi, eax
+	mov bl, [esi]
+	cmp bl, 1
+	je removeFlag
+	mov bl, 1
+	mov [esi], bl
+	jmp endFlagging
+	
+	removeFlag:
+	mov bl, 0
+	mov [esi], bl
+	
+	endFlagging:
+	ret
+placeFlag ENDP
 
 ; ______________________________________________________________________________
 ; clearButtons destroys all grid buttons in the window by invoking DestroyWindow
