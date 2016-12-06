@@ -234,6 +234,7 @@ Random32  ENDP
 .data
 hButtons DWORD 81 DUP(?)
 buttonIndex DWORD ?
+numOfButtons BYTE 81
 gridIndex DWORD ?
 gridX WORD ?
 gridY WORD ?
@@ -362,6 +363,7 @@ openMultipleCells:
 	jmp endProc
 
 endProc:
+call checkVictory
 	ret
 floodFill ENDP
 
@@ -482,6 +484,7 @@ openCell PROC uses EAX EDI EDX
 	mov edi, OFFSET hButtons
 	mov edx, [edi+eax]
 	invoke DestroyWindow, edx
+	dec numOfButtons
 	ret
 openCell ENDP
 
@@ -636,3 +639,13 @@ resetCells:
 	loop resetCells
 	ret
 resetVisitedCells ENDP
+
+; TODO: make it do something cool
+; RIGHT NOW: only clears board.
+checkVictory PROC
+	cmp numOfButtons, 10
+	jne endVictory
+	call clearButtons
+	endVictory:
+	ret
+checkVictory ENDP
