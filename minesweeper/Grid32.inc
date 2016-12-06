@@ -565,8 +565,9 @@ xyToIndex ENDP
 
 ; _______________________________________
 checkVisited PROC uses ESI EBX EDX
-; checks whether cell at index
-; (stored in gridIndex) has been visited.
+; checks whether cell at index (stored in gridIndex) has been visited.
+; returns the value of visited[gridIndex] in EAX.
+; this should be a value of 1 meaning it is visited, or 0 meaning not visited.
 ; Uses: EAX, visited, gridIndex
 ; _______________________________________
 	mov esi, OFFSET visited
@@ -578,7 +579,8 @@ checkVisited ENDP
 
 ; _____________________________
 visitCell PROC uses ESI EBX EAX
-; visits a cell (at gridIndex).
+; visits a cell (at gridIndex) by going to the same offset in the visited array
+; and setting that byte's value to '1' meaning 'visited' is true.
 ; Uses: visited, gridIndex
 ; _____________________________
 	mov esi, OFFSET visited
@@ -656,9 +658,9 @@ resetCells:
 resetVisitedCells ENDP
 
 ; TODO: make it do something cool
-; RIGHT NOW: only clears board.
+; RIGHT NOW: only clears board upon victory.
 checkVictory PROC
-	cmp numOfButtons, 10
+	cmp numOfButtons, 10 ; 10 buttons left means only mines remain
 	jne endVictory
 	call clearButtons
 	endVictory:
