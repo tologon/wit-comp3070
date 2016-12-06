@@ -7,7 +7,7 @@ INCLUDE Grid32.inc
 INCLUDE macros.inc
 BUFFER_SIZE = 5000
 ; ____________________________ DATA & DEFINITIONS ______________________________________________
-WinMain			PROTO	:DWORD
+WinHowTo			PROTO	:DWORD
 generateButtons	PROTO	:DWORD
 .data
 HowToPlayTest	Byte "MineSweeper",0
@@ -58,14 +58,14 @@ main ENDP
 ; This procedure serves two purposes:
 ; 1. It initializes the main window
 ; 2. It receives messages and dispatches them to related controls like buttons
-WinMain PROC hInst:HINSTANCE
+WinHowTo PROC hInst:HINSTANCE
 ; _____________________________________________________________________________
     LOCAL	wc:WNDCLASSEX
     LOCAL	msg:MSG
     LOCAL	hwnd:HWND
     mov		wc.cbSize, SIZEOF WNDCLASSEX
     mov		wc.style, CS_HREDRAW or CS_VREDRAW
-    mov		wc.lpfnWndProc, OFFSET WndProc
+    mov		wc.lpfnWndProc, OFFSET WndHTPProc
     mov		wc.cbClsExtra, NULL
     mov		wc.cbWndExtra, NULL
     push	hInst
@@ -96,14 +96,14 @@ MESSAGES:
 endProc:
 	mov eax, msg.wParam
     ret
-WinMain ENDP
+WinHowTo ENDP
 ; _______________________________________________________________________________
 
 ; _____________________________________________________________
 ; This procedure displays the How To Play directions by printing
 ; them to the window line by line and changing the x, and y 
 ; coordinates to display it in a neat and orderly way
-WndProc PROC hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
+WndHTPProc PROC hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 ; _____________________________________________________________
 	LOCAL hDC:DWORD
 	LOCAL hFont:DWORD
@@ -263,6 +263,6 @@ xorEAX:
 	xor eax, eax
 endProc:
     ret
-WndProc ENDP
+WndHTPProc ENDP
 
 END main
