@@ -194,7 +194,8 @@ paintWindow:
 		mov x, 35
 		pop ecx
 		loop JoseMineSupplier
-	jmp xorEAX
+	jmp updateTimer
+	;jmp xorEAX
 
 defaultWindow:
 	invoke DefWindowProc, hWnd, uMsg, wParam, lParam
