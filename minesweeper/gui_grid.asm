@@ -201,6 +201,8 @@ defaultWindow:
 	invoke DefWindowProc, hWnd, uMsg, wParam, lParam
 	jmp endProc
 
+; Checks if button is the reset button or the flag button, reacts accordingly
+; Else if it is a normal button ,check if you are in flag mode
 buttonClick:
 	mov eax, wParam
 	cmp eax, 500
@@ -209,21 +211,22 @@ buttonClick:
 	je toggleFlag
 	shr eax, 16
 	cmp flagBool, 1
-	je flagButton
+	je flagButton		;if in flag mode, flag the mine
 	cmp ax, BN_CLICKED
-	je removeButton
+	je removeButton		;otherwise remove the button (floods if zero)
 	jmp endProc
 
+;Turn flag mode on if it is currently off; Turn it off if it is currently on.
 toggleFlag:
 	cmp flagBool, 0
 	je setflagMode
-	invoke BeginPaint,hWnd,ADDR ps
+		mov flagBool, 0
+		invoke BeginPaint,hWnd,ADDR ps
 		invoke CreateFontIndirect,ADDR lgfnt
 		mov hFont,eax
 		invoke SelectObject,originalHDC,hFont
 		mov esi, offset noFlagMsg
 		invoke TextOut,originalHDC,75,210,esi,9
-	mov flagBool, 0
 	jmp endProc
 
 	setflagMode:
@@ -237,7 +240,7 @@ toggleFlag:
 	jmp endProc
 
 flagButton:
-	mov eax, wParam
+	mov eax, wParam	;wParam is th button clicked
 	call placeFlag
 	; HERE draw bitmap on top of button clicked (at wParam)
 	; you may need to calculate pixels based on the index of the button clicked

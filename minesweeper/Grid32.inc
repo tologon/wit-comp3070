@@ -583,7 +583,14 @@ visitCell PROC uses ESI EBX EAX
 	ret
 visitCell ENDP
 
-;eax contains wparam from button.
+; placeFlag is called when you click a button while in flag mode.
+; it marks a cell as clickable or un-clickable by using the "visited" array.
+; it will change the cells corresponding "visited" value from 0 to 1 or 1 to 0.
+;INPUT	: EAX contains the button pressed (wParam variable)
+;OUTPUT	: if visited[gridIndex] == 0, change it to 1 (place flag)
+;		: if visited[gridIndex] == 1, change it to 0 (remove flag)
+;USES	: esi to store location of the visited array
+;		: ebx to calculate index of the cell and check values of the array.
 placeFlag PROC uses ESI EBX
 	mov esi, OFFSET visited
 	mov ebx, 4
