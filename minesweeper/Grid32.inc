@@ -32,12 +32,14 @@ rowSize	= ($ - grid)
 
 .code
 
+;_______________________________________________________________________________
 ; PlaceMines places 10 mines randomly throughout the grid.
 ; INPUT		: N/A
 ; OUTPUT	: 10 random cells in grid are replaced with an * designating a mine
 ; USES		: ECX for loop count
 ;			: ESI for location of grid
 ;			: EAX for random number generation
+;_______________________________________________________________________________
 PlaceMines PROC uses ecx esi eax
 	mov ecx, 10
 	MineLayer:
@@ -55,6 +57,7 @@ PlaceMines PROC uses ecx esi eax
 	ret
 PlaceMines ENDP
 
+;_______________________________________________________________________________
 ; IncCells is Called every time a new mine is placed.
 ; Increments the value of surrounding cells by one.
 ; Also checks if the cell is at the edge of the grid, using division.
@@ -68,6 +71,7 @@ PlaceMines ENDP
 ; USES		: EBX is used for division operation,
 ;			:	and checking values of surrounding cells.
 ;			: EDX is used to increment cells by reference.
+;_______________________________________________________________________________
 IncCells PROC uses ebx edx
 	mov bl, 9
 	div bl				; puts quotient of index / 9 into al, remainder into ah
@@ -144,6 +148,7 @@ IncCells PROC uses ebx edx
 	ret
 IncCells ENDP
 
+;_______________________________________________________________________________
 ; clearGrid will replace all cells in the grid with a zero.
 ; Useful for resetting the grid -- call this before placing new mines.
 ; INPUT	: none
@@ -151,6 +156,7 @@ IncCells ENDP
 ; USES	: eax to store '0' -- value replacing grid bytes.
 ;		: esi to store location of byte being changed
 ;		: ecx for loop count (length of grid array)
+;_______________________________________________________________________________
 clearGrid PROC uses eax esi ecx
 	mov esi, offset grid
 	mov ecx, 81
@@ -583,6 +589,7 @@ visitCell PROC uses ESI EBX EAX
 	ret
 visitCell ENDP
 
+;_______________________________________________________________________________
 ; placeFlag is called when you click a button while in flag mode.
 ; it marks a cell as clickable or un-clickable by using the "visited" array.
 ; it will change the cells corresponding "visited" value from 0 to 1 or 1 to 0.
@@ -591,11 +598,12 @@ visitCell ENDP
 ;		: if visited[gridIndex] == 1, change it to 0 (remove flag)
 ;USES	: esi to store location of the visited array
 ;		: ebx to calculate index of the cell and check values of the array.
+;_______________________________________________________________________________
 placeFlag PROC uses ESI EBX
 	mov esi, OFFSET visited
 	mov ebx, 4
-	div bl
-	movzx eax, al      ; grid index
+	div bl				; button array is dword, grid/visited are bytes, so the
+	movzx eax, al     	; value is divided by four to obtain the proper index.
 	add esi, eax
 	mov bl, [esi]
 	cmp bl, 1

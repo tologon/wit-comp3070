@@ -146,7 +146,7 @@ WndProc PROC hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 	je destroyWindow
 	cmp uMsg, WM_CREATE
 	je createWindow
-  cmp uMsg, WM_TIMER
+	cmp uMsg, WM_TIMER
 	je updateTimer
 	cmp uMsg, WM_COMMAND
 	je checkCommand
@@ -242,7 +242,7 @@ toggleFlag:
 flagButton:
 	mov eax, wParam	;wParam is th button clicked
 	call placeFlag
-	; HERE draw bitmap on top of button clicked (at wParam)
+	; TODO: HERE draw bitmap on top of button clicked (at wParam)
 	; you may need to calculate pixels based on the index of the button clicked
 	; I believe the index is stored in eax, or possibly the e part (why you shift right 16).
 	; so divide this by 9, add quotient to x pixels, remainder to y pixels
@@ -255,6 +255,8 @@ removeButton:
 	call removeButtons
 	jmp endProc
 
+; clear buttons, re-generate them, 
+; reset values to default, and generate a new game grid
 resetWindow:
 	call clearGrid
 	call clearButtons
