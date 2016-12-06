@@ -22,7 +22,8 @@ resetButtonText BYTE "Reset", 0
 flagger DWORD ?
 flagButtonText BYTE "F", 0
 flagBool BYTE 0
-flagMsg BYTE "CURRENTLY IN FLAG MODE", 0
+flagMsg BYTE "FLAG MODE", 0
+noFlagMsg BYTE "         ", 0
 timeValue       BYTE "000", 0
 
 .data?
@@ -215,11 +216,23 @@ buttonClick:
 toggleFlag:
 	cmp flagBool, 0
 	je setflagMode
+	invoke BeginPaint,hWnd,ADDR ps
+		invoke CreateFontIndirect,ADDR lgfnt
+		mov hFont,eax
+		invoke SelectObject,originalHDC,hFont
+		mov esi, offset noFlagMsg
+		invoke TextOut,originalHDC,75,210,esi,9
 	mov flagBool, 0
 	jmp endProc
 
 	setflagMode:
 		mov flagBool, 1
+		invoke BeginPaint,hWnd,ADDR ps
+		invoke CreateFontIndirect,ADDR lgfnt
+		mov hFont,eax
+		invoke SelectObject,originalHDC,hFont
+		mov esi, offset flagMsg
+		invoke TextOut,originalHDC,75,210,esi,9
 	jmp endProc
 
 flagButton:
