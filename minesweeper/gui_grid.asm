@@ -9,10 +9,10 @@ INCLUDE Grid32.inc
 WinMain			PROTO	:DWORD
 generateButtons	PROTO	:DWORD
 
-.data 
-ClassName		BYTE "SimpleWinClass", 0 
-AppName			BYTE "Minesweeper", 0 
-ButtonClassName	BYTE "button", 0 
+.data
+ClassName		BYTE "SimpleWinClass", 0
+AppName			BYTE "Minesweeper", 0
+ButtonClassName	BYTE "button", 0
 x				WORD 35
 y				WORD 30
 ButtonID		DWORD 0 ; The control ID of the button control
@@ -23,9 +23,11 @@ flagger DWORD ?
 flagButtonText BYTE "F", 0
 flagBool BYTE 0
 flagMsg BYTE "CURRENTLY IN FLAG MODE", 0
+timeValue       BYTE "000", 0
 
 .data?
 hInstance	HINSTANCE ?
+originalHDC DWORD ?
 ; ___________________________________ CODE _____________________________________________________
 .code
 main PROC
@@ -42,32 +44,32 @@ main ENDP
 ; 2. It receives messages and dispatches them to related controls like buttons
 WinMain PROC hInst:HINSTANCE
 ; _____________________________________________________________________________
-    LOCAL	wc:WNDCLASSEX 
-    LOCAL	msg:MSG 
-    LOCAL	hwnd:HWND 
-    mov		wc.cbSize, SIZEOF WNDCLASSEX 
-    mov		wc.style, CS_HREDRAW or CS_VREDRAW 
-    mov		wc.lpfnWndProc, OFFSET WndProc 
-    mov		wc.cbClsExtra, NULL 
-    mov		wc.cbWndExtra, NULL 
-    push	hInst 
-    pop		wc.hInstance 
+    LOCAL	wc:WNDCLASSEX
+    LOCAL	msg:MSG
+    LOCAL	hwnd:HWND
+    mov		wc.cbSize, SIZEOF WNDCLASSEX
+    mov		wc.style, CS_HREDRAW or CS_VREDRAW
+    mov		wc.lpfnWndProc, OFFSET WndProc
+    mov		wc.cbClsExtra, NULL
+    mov		wc.cbWndExtra, NULL
+    push	hInst
+    pop		wc.hInstance
     mov		wc.hbrBackground, COLOR_BTNFACE
-    ;mov	wc.lpszMenuName, OFFSET MenuName 
-    mov		wc.lpszClassName, OFFSET ClassName 
-    invoke	LoadIcon, NULL, IDI_APPLICATION 
-    mov		wc.hIcon, eax 
-    mov		wc.hIconSm, eax 
-    invoke	LoadCursor, NULL, IDC_ARROW 
-    mov		wc.hCursor, eax 
-    invoke	RegisterClassEx, addr wc 
-    invoke	CreateWindowEx, WS_EX_CLIENTEDGE, ADDR ClassName, \ 
-				ADDR AppName, WS_OVERLAPPEDWINDOW, \ 
-				CW_USEDEFAULT, CW_USEDEFAULT, \ 
-				250, 280, NULL, NULL, hInst ,NULL 
-    mov		hwnd, eax 
+    ;mov	wc.lpszMenuName, OFFSET MenuName
+    mov		wc.lpszClassName, OFFSET ClassName
+    invoke	LoadIcon, NULL, IDI_APPLICATION
+    mov		wc.hIcon, eax
+    mov		wc.hIconSm, eax
+    invoke	LoadCursor, NULL, IDC_ARROW
+    mov		wc.hCursor, eax
+    invoke	RegisterClassEx, addr wc
+    invoke	CreateWindowEx, WS_EX_CLIENTEDGE, ADDR ClassName, \
+				ADDR AppName, WS_OVERLAPPEDWINDOW, \
+				CW_USEDEFAULT, CW_USEDEFAULT, \
+				250, 280, NULL, NULL, hInst ,NULL
+    mov		hwnd, eax
 	invoke	UpdateWindow, hwnd
-	invoke	ShowWindow, hwnd, SW_SHOWNORMAL 
+	invoke	ShowWindow, hwnd, SW_SHOWNORMAL
 
 MESSAGES:
     invoke GetMessage, ADDR msg, NULL, NULL, NULL
@@ -82,7 +84,7 @@ MESSAGES:
 
 endProc:
 	mov eax, msg.wParam
-    ret 
+    ret
 WinMain ENDP
 
 ; _______________________________________________________________________________
@@ -126,7 +128,7 @@ MARCO:
 	add y, 20	; move Y value to right by 20 pixels
 	mov x, 35	; reset X to default value
 	loop MARCO
-	
+
 	ret
 generateButtons ENDP
 
@@ -143,6 +145,8 @@ WndProc PROC hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 	je destroyWindow
 	cmp uMsg, WM_CREATE
 	je createWindow
+  cmp uMsg, WM_TIMER
+	je updateTimer
 	cmp uMsg, WM_COMMAND
 	je checkCommand
 	cmp uMsg, WM_PAINT
@@ -156,6 +160,7 @@ destroyWindow:
 createWindow:
 	call PlaceMines
 	invoke generateButtons, hWnd
+  invoke SetTimer,hWnd,222,1000,NULL
 	jmp xorEAX
 
 ; TODO: interaction with buttons goes here
@@ -164,10 +169,11 @@ checkCommand:
 	jne buttonClick
 	;invoke DestroyWindow, hWnd
 	jmp xorEAX
-	
+
 paintWindow:
 	invoke BeginPaint,hWnd,ADDR ps
 	mov hDC,eax
+  mov originalHDC, eax
 	invoke CreateFontIndirect,ADDR lgfnt
 	mov hFont,eax
 	invoke SelectObject,hDC,hFont
@@ -205,17 +211,17 @@ buttonClick:
 	cmp ax, BN_CLICKED
 	je removeButton
 	jmp endProc
-	
+
 toggleFlag:
 	cmp flagBool, 0
 	je setflagMode
 	mov flagBool, 0
 	jmp endProc
-	
+
 	setflagMode:
 		mov flagBool, 1
 	jmp endProc
-	
+
 flagButton:
 	mov eax, wParam
 	call placeFlag
@@ -231,7 +237,7 @@ removeButton:
 	mov eax, wParam
 	call removeButtons
 	jmp endProc
-	
+
 resetWindow:
 	call clearGrid
 	call clearButtons
@@ -242,12 +248,62 @@ resetWindow:
 	mov ButtonID, 0
 	mov flagBool, 0
 	invoke generateButtons, hWnd
+  jmp xorEAX
+
+updateTimer:
+	invoke BeginPaint,hWnd,ADDR ps
+	invoke CreateFontIndirect,ADDR lgfnt
+	mov hFont,eax
+	invoke SelectObject,originalHDC,hFont
+
+	push eax
+	mov esi, OFFSET timeValue
+	invoke TextOut,originalHDC,182,6,esi,4
+  invoke EndPaint,hWnd, ADDR ps
+	call updateTimeValue
+	pop eax
 
 xorEAX:
 	xor eax, eax
 endProc:
-    ret 
+    ret
 WndProc ENDP
 
+updateTimeValue PROC
+	mov eax, [esi+2]
+	inc eax
+	cmp al, '9'
+	jg resetFirstAddSecond
+	mov [esi+2], eax
+	jmp endProc
 
+resetFirstAddSecond:
+	mov eax, '0'
+	mov [esi+2], eax
+	mov eax, [esi+1]
+	inc eax
+	cmp al, '9'
+	jg resetSecondAddThird
+	mov [esi+1], eax
+	jmp endProc
+
+resetSecondAddThird:
+	mov eax, '0'
+	mov [esi+1], eax
+	mov [esi+2], eax
+	mov eax, [esi]
+	inc eax
+	cmp al, '9'
+	jg resetThird
+	mov [esi], eax
+	jmp endProc
+
+resetThird:
+	mov eax, '0'
+	mov [esi], eax
+	jmp endProc
+
+endProc:
+	ret
+updateTimeValue ENDP
 END main
