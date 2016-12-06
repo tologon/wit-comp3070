@@ -1,5 +1,5 @@
-_TITLE Minesweeper
-; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
+_TITLE HowToPlay
+; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov(C)
 ; ____________________________ SETTINGS & LIBRARIES ____________________________________________
 .model flat,stdcall ; required directives
 option casemap:none	; required property
