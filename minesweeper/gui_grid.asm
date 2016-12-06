@@ -161,7 +161,7 @@ destroyWindow:
 createWindow:
 	call PlaceMines
 	invoke generateButtons, hWnd
-  invoke SetTimer,hWnd,222,1000,NULL
+	invoke SetTimer,hWnd,222,1000,NULL
 	jmp xorEAX
 
 ; TODO: interaction with buttons goes here
@@ -261,20 +261,26 @@ resetWindow:
 	mov ButtonID, 0
 	mov flagBool, 0
 	invoke generateButtons, hWnd
-  jmp xorEAX
+	; RESET TIMER - START ------------------
+	call resetTimeValue
+	jmp updateTimer
+	; RESET TIMER - END ------------------
 
 updateTimer:
+	push eax
+	push esi
 	invoke BeginPaint,hWnd,ADDR ps
 	invoke CreateFontIndirect,ADDR lgfnt
 	mov hFont,eax
 	invoke SelectObject,originalHDC,hFont
-
-	push eax
+	
 	mov esi, OFFSET timeValue
 	invoke TextOut,originalHDC,182,6,esi,4
-  invoke EndPaint,hWnd, ADDR ps
+	invoke EndPaint,hWnd, ADDR ps
 	call updateTimeValue
+	pop esi
 	pop eax
+	jmp endProc
 
 xorEAX:
 	xor eax, eax
@@ -319,4 +325,13 @@ resetThird:
 endProc:
 	ret
 updateTimeValue ENDP
+
+resetTimeValue PROC uses EAX ESI
+	mov eax, '0'
+	mov esi, OFFSET timeValue
+	mov [esi], eax
+	mov [esi+1], eax
+	mov [esi+2], eax
+	ret
+resetTimeValue ENDP
 END main
