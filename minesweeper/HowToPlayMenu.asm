@@ -51,7 +51,7 @@ main PROC
 	call Randomize
     invoke	GetModuleHandle, NULL
     mov		hInstance, eax
-    invoke	WinMain, hInstance
+    invoke	WinHowTo, hInstance
     invoke	ExitProcess, eax
 main ENDP
 ; _____________________________________________________________________________
