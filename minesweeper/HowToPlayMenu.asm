@@ -1,16 +1,36 @@
-TITLE Minesweeper
+_TITLE Minesweeper
 ; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
 ; ____________________________ SETTINGS & LIBRARIES ____________________________________________
 .model flat,stdcall ; required directives
 option casemap:none	; required property
 INCLUDE Grid32.inc
+INCLUDE macros.inc
+BUFFER_SIZE = 5000
 ; ____________________________ DATA & DEFINITIONS ______________________________________________
 WinMain			PROTO	:DWORD
 generateButtons	PROTO	:DWORD
 .data
+HowToPlayTest	Byte "MineSweeper",0
+line1	BYTE "Minesweeper", 10
+line2	BYTE "Goal:", 10
+line3	BYTE "Uncover all of the empty squares in the map, while avoiding the 10 mines hidden", 10
+line4	BYTE "on the map, in the quickest time possible. The game is won if all the safe squares", 10
+line5	BYTE "are uncovered, and the game will result in a loss if a mine is tripped.", 10
+line6   BYTE " ", 10
+line7	BYTE "Numbers on board:",10
+line8	BYTE "Each number tells you how many mines are in the 8 spaces surrounding that specific",10
+line9	BYTE "space. This information can be used to deduce which adjacent spaces are safe, and ",10
+line10	BYTE "which could have bombs.",10
+line11	BYTE " ",10
+line12  BYTE "Counter Bar:",10 
+line13	BYTE "Displays the number of mines still hidden on the map, and the timer keeps track of",10
+line14	BYTE "how many seconds it takes to clear the board.",0
+
+buffer BYTE BUFFER_SIZE DUP(?)
+filename BYTE "howtoplay.txt"
+fileHandle HANDLE ?
 ClassName		BYTE "HowToPlay", 0
 AppName			BYTE "How To Play", 0
-ButtonClassName	BYTE "button", 0
 x				WORD 35
 y				WORD 30
 ButtonID		DWORD 0 ; The control ID of the button control
@@ -62,7 +82,7 @@ WinMain PROC hInst:HINSTANCE
     invoke	CreateWindowEx, WS_EX_CLIENTEDGE, ADDR ClassName, \
 				ADDR AppName, WS_OVERLAPPEDWINDOW, \
 				CW_USEDEFAULT, CW_USEDEFAULT, \
-				250, 280, NULL, NULL, hInst ,NULL
+				1100, 700, NULL, NULL, hInst ,NULL
     mov		hwnd, eax
 	invoke	UpdateWindow, hwnd
 	invoke	ShowWindow, hwnd, SW_SHOWNORMAL
@@ -109,19 +129,131 @@ paintWindow:
 	mov ecx, 9
 	mov x, 35
 	mov y, 30
-	mov esi, offset grid
-	JoseMineSupplier:
-		push ecx
-		mov ecx, 9
-		JoseMineLayer:
-			invoke TextOut,hDC,x,y,esi,1
-			inc esi
-			add x, 20
-			loop JoseMineLayer
-		add y, 20
-		mov x, 35
-		pop ecx
-		loop JoseMineSupplier
+	mov esi, offset line1
+	mov ecx, SIZEOF line1
+	Jose1:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose1
+	add y, 30
+	mov x, 40
+	mov esi, offset line2
+	mov ecx, SIZEOF line2
+	Jose2:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose2
+	add y,30
+	mov x, 40
+	mov esi, offset line3
+	mov ecx, SIZEOF line3
+	Jose3:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose3
+	add y,30
+	mov x, 40
+	mov esi, offset line4
+	mov ecx, SIZEOF line4
+	Jose4:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose4
+	add y,30
+	mov x, 40
+	mov esi, offset line5
+	mov ecx, SIZEOF line5
+	Jose5:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose5
+	add y,30
+	mov x, 40
+	mov esi, offset line6
+	mov ecx, SIZEOF line6
+	Jose6:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose6
+	add y,30
+	mov x, 40
+	mov esi, offset line7
+	mov ecx, SIZEOF line7
+	Jose7:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose7
+	add y,30
+	mov x, 40
+	mov esi, offset line8
+	mov ecx, SIZEOF line8
+	Jose8:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose8
+	add y,30
+	mov x, 40
+	mov esi, offset line9
+	mov ecx, SIZEOF line9
+	Jose9:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose9
+	add y,30
+	mov x, 40
+	mov esi, offset line10
+	mov ecx, SIZEOF line10
+	Jose10:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose10
+	add y,30
+	mov x, 40
+	mov esi, offset line11
+	mov ecx, SIZEOF line11
+	Jose11:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose11
+	add y,30
+	mov x, 40
+	mov esi, offset line12
+	mov ecx, SIZEOF line12
+	Jose12:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose12
+	add y,30
+	mov x, 40
+	mov esi, offset line13
+	mov ecx, SIZEOF line13
+	Jose13:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose13
+	add y,30
+	mov x, 40
+	mov esi, offset line14
+	mov ecx, SIZEOF line14
+	Jose14:
+	invoke TextOut, hDC, x, y, esi, 1
+	add x, 12
+	inc esi
+	Loop Jose14
+
 	jmp xorEAX
 defaultWindow:
 	invoke DefWindowProc, hWnd, uMsg, wParam, lParam
@@ -132,6 +264,5 @@ xorEAX:
 endProc:
     ret
 WndProc ENDP
-
 
 END main
