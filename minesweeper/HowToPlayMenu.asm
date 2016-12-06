@@ -100,9 +100,9 @@ WinMain ENDP
 ; _______________________________________________________________________________
 
 ; _____________________________________________________________
-; This procedure receives messages and acts accordingly.
-; For example, on button click, it will delete it and display
-; cell's value behind that button.
+; This procedure displays the How To Play directions by printing
+; them to the window line by line and changing the x, and y 
+; coordinates to display it in a neat and orderly way
 WndProc PROC hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 ; _____________________________________________________________
 	LOCAL hDC:DWORD
