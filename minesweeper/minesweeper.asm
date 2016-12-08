@@ -232,12 +232,18 @@ buttonClick:
 	je resetWindow
 	cmp eax, 501
 	je toggleFlag
+	cmp eax, ID_HOW_TO_PLAY_BUTTON
+	je displayHowToPlay
 	shr eax, 16
 	cmp flagBool, 1
 	je flagButton		;if in flag mode, flag the mine
 	cmp ax, BN_CLICKED
 	je removeButton		;otherwise remove the button (floods if zero)
 	jmp endProc
+
+displayHowToPlay:
+	invoke MessageBox, NULL, NULL, ADDR howToPlayButtonText, MB_OK 
+	jmp xorEAX
 
 ;Turn flag mode on if it is currently off; Turn it off if it is currently on.
 toggleFlag:
