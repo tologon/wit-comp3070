@@ -25,6 +25,7 @@ flagBool BYTE 0
 flagMsg BYTE "FLAG MODE", 0
 noFlagMsg BYTE "         ", 0
 timeValue       BYTE "000", 0
+MenuName db "FirstMenu",0   ; The name of our menu in the resource file.
 
 .data?
 hInstance	HINSTANCE ?
@@ -56,7 +57,7 @@ WinMain PROC hInst:HINSTANCE
     push	hInst
     pop		wc.hInstance
     mov		wc.hbrBackground, COLOR_BTNFACE
-    ;mov	wc.lpszMenuName, OFFSET MenuName
+    mov	    wc.lpszMenuName, OFFSET MenuName
     mov		wc.lpszClassName, OFFSET ClassName
     invoke	LoadIcon, NULL, IDI_APPLICATION
     mov		wc.hIcon, eax
