@@ -64,9 +64,19 @@ WinMain PROC hInst:HINSTANCE
     invoke	LoadCursor, NULL, IDC_ARROW
     mov		wc.hCursor, eax
     invoke	RegisterClassEx, addr wc
+;---------- [Center the window] ----------
+      INVOKE     GetSystemMetrics, SM_CXSCREEN
+         sub     eax, 350
+         shr     eax, 1
+        push     eax
+      INVOKE     GetSystemMetrics, SM_CYSCREEN
+         sub     eax, 300
+         shr     eax, 1
+         pop     ebx
+;---------- [Create the Main Window] ----------
     invoke	CreateWindowEx, WS_EX_CLIENTEDGE, ADDR ClassName, \
 				ADDR AppName, WS_OVERLAPPEDWINDOW, \
-				CW_USEDEFAULT, CW_USEDEFAULT, \
+				ebx, eax, \
 				250, 280, NULL, NULL, hInst ,NULL
     mov		hwnd, eax
 	invoke	UpdateWindow, hwnd
