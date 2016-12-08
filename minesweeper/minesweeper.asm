@@ -26,6 +26,10 @@ flagMsg BYTE "FLAG MODE", 0
 noFlagMsg BYTE "         ", 0
 timeValue       BYTE "000", 0
 
+howToPlay DWORD ?
+ID_HOW_TO_PLAY_BUTTON DWORD 0FAh
+howToPlayButtonText BYTE "How-To-Play", 0
+
 .data?
 hInstance	HINSTANCE ?
 originalHDC DWORD ?
@@ -77,7 +81,7 @@ WinMain PROC hInst:HINSTANCE
     invoke	CreateWindowEx, WS_EX_CLIENTEDGE, ADDR ClassName, \
 				ADDR AppName, WS_OVERLAPPEDWINDOW, \
 				ebx, eax, \
-				250, 280, NULL, NULL, hInst ,NULL
+				250, 290, NULL, NULL, hInst ,NULL
     mov		hwnd, eax
 	invoke	UpdateWindow, hwnd
 	invoke	ShowWindow, hwnd, SW_SHOWNORMAL
@@ -104,10 +108,12 @@ WinMain ENDP
 generateButtons PROC USES ecx ebx hWnd:HWND
 ; _______________________________________________________________________________
 	invoke	GetModuleHandle, NULL
+	; RESET BUTTON **************************************************************
 	mov esi, offset smiley
 	invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR resetButtonText, \
 			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
 			100, 4, 52, 20, hWnd, 500, [esi], NULL
+	; FLAG BUTTON ***************************************************************
 	mov esi, offset flagger
 	invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR flagButtonText, \
 			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
@@ -140,6 +146,13 @@ MARCO:
 	mov x, 35	; reset X to default value
 	loop MARCO
 
+	; HOW-TO-PLAY BUTTON ********************************************************
+	add y, 5
+	add x, 45
+	mov esi, OFFSET howToPlay
+	invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR howToPlayButtonText, \
+			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
+			x, y, 92, 20, hWnd, ID_HOW_TO_PLAY_BUTTON, [esi], NULL
 	ret
 generateButtons ENDP
 
