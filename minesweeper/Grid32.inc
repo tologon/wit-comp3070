@@ -387,7 +387,7 @@ isValidCell PROC
 	cmp bl, 8
 	jg endProc         ; return if y > 8
 	call xyToIndex     ; stores new index in gridIndex
-	call checkVisited  ; returns answer (index VISITED = 1 or NOT VISITED = 0) in AL
+	call checkVisited  ; returns answer (index VISITED=1 or NOT VISITED=0) in AL
 	cmp al, 1          ; if visited index
 	je endProc         ; already visited, skip to next cell
 	mov validCell, 1   ; this is valid cell, set variable to 1
