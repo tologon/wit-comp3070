@@ -29,6 +29,18 @@ timeValue       BYTE "000", 0
 howToPlay DWORD ?
 ID_HOW_TO_PLAY_BUTTON DWORD 0FAh
 howToPlayButtonText BYTE "How-To-Play", 0
+gameInstructions	BYTE 9, 9, 9, "        Minesweeper", 10
+					BYTE "Goal:", 10
+					BYTE "Uncover all of the empty squares in the map, while avoiding the 10 mines hidden", 32
+					BYTE "on the map, in the quickest time possible. The game is won if all the safe squares", 32
+					BYTE "are uncovered, and the game will result in a loss if a mine is tripped.", 10, 10
+					BYTE "Numbers on board:", 10
+					BYTE "Each number tells you how many mines are in the 8 spaces surrounding that specific space.", 32
+					BYTE "This information can be used to deduce which adjacent spaces are safe, and ", 32
+					BYTE "which could have bombs.", 10, 10
+					BYTE "Counter Bar:", 10 
+					BYTE "Displays the number of mines still hidden on the map, and the timer keeps track of", 32
+					BYTE "how many seconds it takes to clear the board.", 0
 
 .data?
 hInstance	HINSTANCE ?
@@ -242,7 +254,7 @@ buttonClick:
 	jmp endProc
 
 displayHowToPlay:
-	invoke MessageBox, NULL, NULL, ADDR howToPlayButtonText, MB_OK 
+	invoke MessageBox, NULL, ADDR gameInstructions, ADDR howToPlayButtonText, MB_OK 
 	jmp xorEAX
 
 ;Turn flag mode on if it is currently off; Turn it off if it is currently on.
