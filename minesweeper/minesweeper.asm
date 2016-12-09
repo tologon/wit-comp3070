@@ -31,6 +31,10 @@ WndProc_hDC DWORD 0
 WndProc_hFont DWORD 0
 ; -----------------------
 
+; WinMain local variables
+WinMain_hwnd HWND 0
+; -----------------------
+
 howToPlay DWORD ?
 ID_HOW_TO_PLAY_BUTTON DWORD 0FAh
 howToPlayButtonText BYTE "How-To-Play", 0
@@ -66,9 +70,12 @@ main ENDP
 ; 2. It receives messages and dispatches them to related controls like buttons
 WinMain PROC
 ; _____________________________________________________________________________
-    LOCAL	wc:WNDCLASSEX
+	; Local variable below must be initialized that way in order for the rest
+	; of code in this procedure to work. There is no simple work around that.
+	; We've taken out all other local variables that didn't crash the program.
+	LOCAL	wc:WNDCLASSEX 
     LOCAL	msg:MSG
-    LOCAL	hwnd:HWND
+
     mov		wc.cbSize, SIZEOF WNDCLASSEX
     mov		wc.style, CS_HREDRAW or CS_VREDRAW
     mov		wc.lpfnWndProc, OFFSET WndProc
@@ -99,9 +106,9 @@ WinMain PROC
 				ADDR AppName, WS_OVERLAPPEDWINDOW, \
 				ebx, eax, \
 				250, 290, NULL, NULL, hInstance ,NULL
-    mov		hwnd, eax
-	invoke	UpdateWindow, hwnd
-	invoke	ShowWindow, hwnd, SW_SHOWNORMAL
+    mov		WinMain_hwnd, eax
+	invoke	UpdateWindow, WinMain_hwnd
+	invoke	ShowWindow, WinMain_hwnd, SW_SHOWNORMAL
 
 MESSAGES:
     invoke GetMessage, ADDR msg, NULL, NULL, NULL
@@ -179,9 +186,11 @@ generateButtons ENDP
 ; cell's value behind that button.
 WndProc PROC hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 ; _____________________________________________________________
-	LOCAL ps:PAINTSTRUCT	; has to be declared local in order for code like
-							; invoke BeginPaint,hWnd,ADDR ps to work
-						
+	; Local variable below must be initialized that way in order for the rest
+	; of code in this procedure to work. There is no simple work around that.
+	; We've taken out all other local variables that didn't crash the program.
+	LOCAL ps:PAINTSTRUCT	
+
 	cmp uMsg, WM_DESTROY
 	je destroyWindow
 	cmp uMsg, WM_CREATE
