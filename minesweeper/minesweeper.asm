@@ -50,18 +50,24 @@ WinMain_hwnd HWND 0
 howToPlay DWORD ?
 ID_HOW_TO_PLAY_BUTTON DWORD 0FAh
 howToPlayButtonText BYTE "How-To-Play", 0
-instructions BYTE 9, 9, 9, "        Minesweeper", 10
-			 BYTE "Goal:", 10
-			 BYTE "Uncover all of the empty squares in the map, while avoiding the 10 mines hidden", 32
-			 BYTE "on the map, in the quickest time possible. The game is won if all the safe squares", 32
-			 BYTE "are uncovered, and the game will result in a loss if a mine is tripped.", 10, 10
-			 BYTE "Numbers on board:", 10
-			 BYTE "Each number tells you how many mines are in the 8 spaces surrounding that specific space.", 32
-			 BYTE "This information can be used to deduce which adjacent spaces are safe, and ", 32
-			 BYTE "which could have bombs.", 10, 10
-			 BYTE "Counter Bar:", 10
-			 BYTE "Displays the number of mines still hidden on the map, and the timer keeps track of", 32
-			 BYTE "how many seconds it takes to clear the board.", 0
+instructions  BYTE 9, 9, 9, "        Minesweeper", 10
+              BYTE "Goal:", 10
+              BYTE "Uncover all of the empty squares in the map, while avoiding the 10 mines hidden", 32
+              BYTE "on the map, in the quickest time possible. The game is won if all the safe squares", 32
+              BYTE "are uncovered, and the game will result in a loss if a mine is tripped.", 10, 10
+              BYTE "Numbers on board:", 10
+              BYTE "Each number tells you how many mines are in the 8 spaces surrounding that specific space.", 32
+              BYTE "This information can be used to deduce which adjacent spaces are safe, and ", 32
+              BYTE "which could have bombs.", 10, 10
+              BYTE "Counter Bar:", 10
+              BYTE "Displays the number of mines still hidden on the map, and the timer keeps track of", 32
+              BYTE "how many seconds it takes to clear the board.", 10, 10
+              BYTE "Flag Mode:", 10
+              BYTE "To place flags, press the F button which will put you into flag mode. Once in flag",10
+              BYTE "mode you will be able to place flags to mark where you believe there are mines", 10, 10
+              BYTE "Reset Button:", 10
+              BYTE "Click the smiling face button located above the map in the middle of the screen",10
+              BYTE "in order to reset the map and start a new game", 0
 ; ___________________________________ CODE ______________________________________________________________________
 .code
 main PROC
