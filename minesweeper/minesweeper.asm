@@ -21,7 +21,7 @@ resetButtonText BYTE "Reset", 0
 flagger DWORD ?
 flagButtonText BYTE "F", 0
 flagBool BYTE 0
-flagMsg BYTE "FLAG MODE", 0
+flagMsg BYTE "FLAG ON", 0
 noFlagMsg BYTE "         ", 0
 timeValue       BYTE "000", 0
 
@@ -56,7 +56,7 @@ main ENDP
 
 ; _____________________________________________________________________________
 ; This procedure serves two purposes:
-; 1. It initializes the main window
+; 1. It initializes the main window	
 ; 2. It receives messages and dispatches them to related controls like buttons
 WinMain PROC
 ; _____________________________________________________________________________
@@ -159,7 +159,7 @@ MARCO:
 
 	; HOW-TO-PLAY BUTTON ********************************************************
 	add y, 5
-	add x, 45
+	add x, 85
 	mov esi, OFFSET howToPlay
 	invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR howToPlayButtonText, \
 			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
@@ -266,7 +266,7 @@ toggleFlag:
 		mov hFont,eax
 		invoke SelectObject,originalHDC,hFont
 		mov esi, offset noFlagMsg
-		invoke TextOut,originalHDC,75,210,esi,9
+		invoke TextOut,originalHDC,35,215,esi,7
 	jmp endProc
 
 	setflagMode:
@@ -276,7 +276,7 @@ toggleFlag:
 		mov hFont,eax
 		invoke SelectObject,originalHDC,hFont
 		mov esi, offset flagMsg
-		invoke TextOut,originalHDC,75,210,esi,9
+		invoke TextOut,originalHDC,35,215,esi,7
 	jmp endProc
 
 flagButton:
