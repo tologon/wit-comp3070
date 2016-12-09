@@ -6,54 +6,60 @@ option casemap:none	; required property
 
 INCLUDE Grid32.inc
 ; ____________________________ DATA & DEFINITIONS ______________________________________________
-
 .data
-ClassName		BYTE "SimpleWinClass", 0
-AppName			BYTE "Minesweeper", 0
-ButtonClassName	BYTE "button", 0
-x				WORD 35
-y				WORD 30
-ButtonID		DWORD 0 ; The control ID of the button control
-lgfnt           LOGFONT <18,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,"Lucida Console"> ; Text font
+; ---------------------------- windows VARIABLES ------------------------------
+originalHDC DWORD ?
+hInstance HINSTANCE ?
+timeValue BYTE "000", 0
+AppName BYTE "Minesweeper", 0
+WindowClassName BYTE "WindowsClass", 0
+lgfnt LOGFONT <18,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,"Lucida Console"> ; Text font
+; -----------------------------------------------------------------------------
+
+; grid buttons VARIABLES
+ButtonClassName	BYTE "Button", 0
+x				WORD 35 ; Initial grid button's placement
+y				WORD 30 ; Initial grid button's placement
+ButtonID		DWORD 0 ; The control ID of the each button on a grid
+generateButtonsHandle DWORD ?
+
+
+; reset/smiley VARIABLES 
 smiley DWORD ?
 resetButtonText BYTE "^_^", 0
+
+; flag VARIABLES _________
 flagger DWORD ?
 flagButtonText BYTE "F", 0
 flagBool BYTE 0
 flagMsg BYTE "FLAG ON", 0
-noFlagMsg BYTE "         ", 0
-timeValue       BYTE "000", 0
-generateButtonsHandle DWORD ?
+noFlagMsg BYTE "       ", 0
 
-
-; WndProc local variables
+; WndProc local VARIABLES
 WndProc_hDC DWORD 0
 WndProc_hFont DWORD 0
 ; -----------------------
 
-; WinMain local variables
+; WinMain local VARIABLES
 WinMain_hwnd HWND 0
 ; -----------------------
 
+; how-to-play VARIABLES
 howToPlay DWORD ?
 ID_HOW_TO_PLAY_BUTTON DWORD 0FAh
 howToPlayButtonText BYTE "How-To-Play", 0
-gameInstructions	BYTE 9, 9, 9, "        Minesweeper", 10
-					BYTE "Goal:", 10
-					BYTE "Uncover all of the empty squares in the map, while avoiding the 10 mines hidden", 32
-					BYTE "on the map, in the quickest time possible. The game is won if all the safe squares", 32
-					BYTE "are uncovered, and the game will result in a loss if a mine is tripped.", 10, 10
-					BYTE "Numbers on board:", 10
-					BYTE "Each number tells you how many mines are in the 8 spaces surrounding that specific space.", 32
-					BYTE "This information can be used to deduce which adjacent spaces are safe, and ", 32
-					BYTE "which could have bombs.", 10, 10
-					BYTE "Counter Bar:", 10 
-					BYTE "Displays the number of mines still hidden on the map, and the timer keeps track of", 32
-					BYTE "how many seconds it takes to clear the board.", 0
-
-.data?
-hInstance	HINSTANCE ?
-originalHDC DWORD ?
+instructions BYTE 9, 9, 9, "        Minesweeper", 10
+			 BYTE "Goal:", 10
+			 BYTE "Uncover all of the empty squares in the map, while avoiding the 10 mines hidden", 32
+			 BYTE "on the map, in the quickest time possible. The game is won if all the safe squares", 32
+			 BYTE "are uncovered, and the game will result in a loss if a mine is tripped.", 10, 10
+			 BYTE "Numbers on board:", 10
+			 BYTE "Each number tells you how many mines are in the 8 spaces surrounding that specific space.", 32
+			 BYTE "This information can be used to deduce which adjacent spaces are safe, and ", 32
+			 BYTE "which could have bombs.", 10, 10
+			 BYTE "Counter Bar:", 10 
+			 BYTE "Displays the number of mines still hidden on the map, and the timer keeps track of", 32
+			 BYTE "how many seconds it takes to clear the board.", 0
 ; ___________________________________ CODE _____________________________________________________
 .code
 main PROC
@@ -85,7 +91,7 @@ WinMain PROC
     pop		wc.hInstance
     mov		wc.hbrBackground, COLOR_BTNFACE
     ;mov	    wc.lpszMenuName, OFFSET MenuName
-    mov		wc.lpszClassName, OFFSET ClassName
+    mov		wc.lpszClassName, OFFSET WindowClassName
     invoke	LoadIcon, NULL, IDI_APPLICATION
     mov		wc.hIcon, eax
     mov		wc.hIconSm, eax
@@ -102,7 +108,7 @@ WinMain PROC
          shr     eax, 1
          pop     ebx
 ;---------- [Create the Main Window] ----------
-    invoke	CreateWindowEx, WS_EX_CLIENTEDGE, ADDR ClassName, \
+    invoke	CreateWindowEx, WS_EX_CLIENTEDGE, ADDR WindowClassName, \
 				ADDR AppName, WS_OVERLAPPEDWINDOW, \
 				ebx, eax, \
 				250, 290, NULL, NULL, hInstance ,NULL
@@ -273,7 +279,7 @@ buttonClick:
 	jmp endProc
 
 displayHowToPlay:
-	invoke MessageBox, NULL, ADDR gameInstructions, ADDR howToPlayButtonText, MB_OK 
+	invoke MessageBox, NULL, ADDR instructions, ADDR howToPlayButtonText, MB_OK 
 	jmp xorEAX
 
 ;Turn flag mode on if it is currently off; Turn it off if it is currently on.
