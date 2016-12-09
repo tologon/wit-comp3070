@@ -116,6 +116,7 @@ WinMain PROC
   invoke  UpdateWindow, WinMain_hwnd
   invoke  ShowWindow, WinMain_hwnd, SW_SHOWNORMAL
 
+; [MAIN GAME LOOP]
 MESSAGES:
   invoke  GetMessage, ADDR msg, NULL, NULL, NULL
   cmp     eax, 0	; check if main window is closed
@@ -191,179 +192,179 @@ generateButtons ENDP
 ; cell's value behind that button.
 WndProc PROC hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 ; _____________________________________________________________
-	; Local variable below must be initialized that way in order for the rest
-	; of code in this procedure to work. There is no simple work around that.
-	; We've taken out all other local variables that didn't crash the program.
-	LOCAL ps:PAINTSTRUCT
+  ; Local variable below must be initialized that way in order for the rest
+  ; of code in this procedure to work. There is no simple work around that.
+  ; We've taken out all other local variables that didn't crash the program.
+  LOCAL ps:PAINTSTRUCT
 
-	cmp uMsg, WM_DESTROY
-	je destroyWindow
-	cmp uMsg, WM_CREATE
-	je createWindow
-	cmp uMsg, WM_TIMER
-	je updateTimer
-	cmp uMsg, WM_COMMAND
-	je checkCommand
-	cmp uMsg, WM_PAINT
-	je paintWindow
-	jmp defaultWindow
+  cmp uMsg, WM_DESTROY
+  je  destroyWindow
+  cmp uMsg, WM_CREATE
+  je  createWindow
+  cmp uMsg, WM_TIMER
+  je  updateTimer
+  cmp uMsg, WM_COMMAND
+  je  checkCommand
+  cmp uMsg, WM_PAINT
+  je  paintWindow
+  jmp defaultWindow
 
 destroyWindow:
-	invoke PostQuitMessage, NULL
-	jmp xorEAX
+  invoke PostQuitMessage, NULL
+  jmp xorEAX
 
 createWindow:
-	call PlaceMines
-
-	push eax
-	mov eax, hWnd
-	mov generateButtonsHandle, eax
-	pop eax
-	call generateButtons
-
-	invoke SetTimer,hWnd,222,1000,NULL
-	jmp xorEAX
+  call PlaceMines
+  ; [GENERATE BUTTONS]
+  push eax
+  mov eax, hWnd
+  mov generateButtonsHandle, eax
+  pop eax
+  call generateButtons
+  invoke SetTimer, hWnd, 222, 1000, NULL
+  jmp xorEAX
 
 checkCommand:
-	cmp lParam, 0
-	jne buttonClick
-	jmp xorEAX
+  cmp lParam, 0
+  jne buttonClick
+  jmp xorEAX
 
 paintWindow:
-	invoke BeginPaint,hWnd,ADDR ps
-	mov WndProc_hDC,eax
+  invoke BeginPaint, hWnd, ADDR ps
+  mov WndProc_hDC, eax
   mov originalHDC, eax
-	invoke CreateFontIndirect,ADDR lgfnt
-	mov WndProc_hFont,eax
-	invoke SelectObject,WndProc_hDC,WndProc_hFont
-	mov ecx, 9
-	mov x, 35
-	mov y, 30
-	mov esi, offset grid
-	JoseMineSupplier:
-		push ecx
-		mov ecx, 9
-		JoseMineLayer:
-			invoke TextOut,WndProc_hDC,x,y,esi,1
-			inc esi
-			add x, 20
-			loop JoseMineLayer
-		add y, 20
-		mov x, 35
-		pop ecx
-		loop JoseMineSupplier
-	jmp updateTimer
+  invoke CreateFontIndirect, ADDR lgfnt
+  mov WndProc_hFont, eax
+  invoke SelectObject, WndProc_hDC, WndProc_hFont
+  mov ecx, 9
+  mov x, 35
+  mov y, 30
+  mov esi, OFFSET grid
+  JoseMineSupplier:
+    push ecx
+    mov ecx, 9
+    JoseMineLayer:
+      invoke TextOut, WndProc_hDC, x, y, esi, 1
+      inc esi
+      add x, 20
+      loop JoseMineLayer
+    add y, 20
+    mov x, 35
+    pop ecx
+    loop JoseMineSupplier
+  jmp updateTimer
 
 defaultWindow:
-	invoke DefWindowProc, hWnd, uMsg, wParam, lParam
-	jmp endProc
+  invoke DefWindowProc, hWnd, uMsg, wParam, lParam
+  jmp endProc
 
 ; Checks if button is the reset button or the flag button, reacts accordingly
 ; Else if it is a normal button, check if you are in flag mode
 buttonClick:
-	mov eax, wParam
-	cmp eax, 500
-	je resetWindow
-	cmp eax, 501
-	je toggleFlag
-	cmp eax, ID_HOW_TO_PLAY_BUTTON
-	je displayHowToPlay
-	shr eax, 16
-	cmp flagBool, 1
-	je flagButton		;if in flag mode, flag the mine
-	cmp ax, BN_CLICKED
-	je removeButton		;otherwise remove the button (floods if zero)
-	jmp endProc
+  mov eax, wParam
+  cmp eax, 500
+  je resetWindow
+  cmp eax, 501
+  je toggleFlag
+  cmp eax, ID_HOW_TO_PLAY_BUTTON
+  je displayHowToPlay
+  shr eax, 16
+  cmp flagBool, 1
+  je flagButton ; if in flag mode, flag the mine
+  cmp ax, BN_CLICKED
+  je removeButton ; otherwise remove the button (floods if zero)
+  jmp endProc
 
 displayHowToPlay:
-	invoke MessageBox, NULL, ADDR instructions, ADDR howToPlayButtonText, MB_OK
-	jmp xorEAX
+  invoke MessageBox, NULL, ADDR instructions, ADDR howToPlayButtonText, MB_OK
+  jmp xorEAX
 
-;Turn flag mode on if it is currently off; Turn it off if it is currently on.
+; Turn flag mode on if it is currently off; Turn it off if it is currently on.
 toggleFlag:
-	cmp flagBool, 0
-	je setflagMode
-		mov flagBool, 0
-		invoke BeginPaint,hWnd,ADDR ps
-		invoke CreateFontIndirect,ADDR lgfnt
-		mov WndProc_hFont,eax
-		invoke SelectObject,originalHDC,WndProc_hFont
-		mov esi, offset noFlagMsg
-		invoke TextOut,originalHDC,35,215,esi,7
+  cmp flagBool, 0
+  je setflagMode
+
+  mov flagBool, 0
+  invoke BeginPaint, hWnd, ADDR ps
+  invoke CreateFontIndirect, ADDR lgfnt
+  mov WndProc_hFont,eax
+  invoke SelectObject, originalHDC, WndProc_hFont
+  mov esi, OFFSET noFlagMsg
+  invoke TextOut, originalHDC, 35, 215, esi, 7
 	jmp endProc
 
 	setflagMode:
-		mov flagBool, 1
-		invoke BeginPaint,hWnd,ADDR ps
-		invoke CreateFontIndirect,ADDR lgfnt
-		mov WndProc_hFont,eax
-		invoke SelectObject,originalHDC,WndProc_hFont
-		mov esi, offset flagMsg
-		invoke TextOut,originalHDC,35,215,esi,7
-	jmp endProc
+    mov flagBool, 1
+    invoke BeginPaint,hWnd,ADDR ps
+    invoke CreateFontIndirect,ADDR lgfnt
+    mov WndProc_hFont, eax
+    invoke SelectObject,originalHDC,WndProc_hFont
+    mov esi, OFFSET flagMsg
+    invoke TextOut, originalHDC, 35, 215, esi, 7
+  jmp endProc
 
 flagButton:
-	mov eax, wParam	;wParam is th button clicked
-	call placeFlag
-	; TODO: HERE draw bitmap on top of button clicked (at wParam)
-	; you may need to calculate pixels based on the index of the button clicked
-	; I believe the index is stored in eax, or possibly the e part (why you shift right 16).
-	; so divide this by 9, add quotient to x pixels, remainder to y pixels
-	; also adjust for size of buttons (remember they are 20 x 20).
-	; GOOD LUCK WITH THAT TOLOGON
-	jmp endProc
+  mov eax, wParam	; wParam is th button clicked
+  call placeFlag
+  ; TODO: HERE draw bitmap on top of button clicked (at wParam)
+  ; you may need to calculate pixels based on the index of the button clicked
+  ; I believe the index is stored in eax, or possibly the e part (why you shift right 16).
+  ; so divide this by 9, add quotient to x pixels, remainder to y pixels
+  ; also adjust for size of buttons (remember they are 20 x 20).
+  jmp endProc
 
 removeButton:
-	mov eax, wParam
-	call removeButtons
-	jmp endProc
+  mov eax, wParam
+  call removeButtons
+  jmp endProc
 
 ; clear buttons, re-generate them,
 ; reset values to default, and generate a new game grid
 resetWindow:
-	call clearGrid
-	call clearButtons
-	call resetVisitedCells
-	call PlaceMines
-	mov x, 35
-	mov y, 30
-	mov ButtonID, 0
-	mov flagBool, 0
+  call clearGrid
+  call clearButtons
+  call resetVisitedCells
+  call PlaceMines
+  mov x, 35
+  mov y, 30
+  mov ButtonID, 0
+  mov flagBool, 0
 
-	push eax
-	mov eax, hWnd
-	mov generateButtonsHandle, eax
-	pop eax
-	call generateButtons
+  ; [GENERATE BUTTONS]
+  push eax
+  mov eax, hWnd
+  mov generateButtonsHandle, eax
+  pop eax
+  call generateButtons
 
-	; RESET TIMER - START ------------------
+	; [RESET TIMER]
 	call resetTimeValue
 	jmp updateTimer
-	; RESET TIMER - END ------------------
 
 updateTimer:
-	push eax
-	push esi
-	invoke BeginPaint,hWnd,ADDR ps
-	invoke CreateFontIndirect,ADDR lgfnt
-	mov WndProc_hFont,eax
-	invoke SelectObject,originalHDC,WndProc_hFont
-
-	mov esi, OFFSET timeValue
-	invoke TextOut,originalHDC,182,6,esi,4
-	invoke EndPaint,hWnd, ADDR ps
-	call updateTimeValue
-	pop esi
-	pop eax
-	jmp endProc
+  push eax
+  push esi
+  invoke BeginPaint, hWnd, ADDR ps
+  invoke CreateFontIndirect, ADDR lgfnt
+  mov WndProc_hFont, eax
+  invoke SelectObject, originalHDC, WndProc_hFont
+  mov esi, OFFSET timeValue
+  invoke TextOut, originalHDC, 182, 6, esi, 4
+  invoke EndPaint, hWnd, ADDR ps
+  call updateTimeValue
+  pop esi
+  pop eax
+  jmp endProc
 
 xorEAX:
-	xor eax, eax
+  xor eax, eax
 endProc:
-    ret
+  ret
 WndProc ENDP
 
+; __________________
 updateTimeValue PROC
+; __________________
 	mov eax, [esi+2]
 	inc eax
 	cmp al, '9'
@@ -401,7 +402,9 @@ endProc:
 	ret
 updateTimeValue ENDP
 
+; ______________________________
 resetTimeValue PROC uses EAX ESI
+; ______________________________
 	mov eax, '0'
 	mov esi, OFFSET timeValue
 	mov [esi], eax
