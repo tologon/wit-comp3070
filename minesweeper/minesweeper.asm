@@ -133,55 +133,56 @@ WinMain ENDP
 ; _______________________________________________________________________________
 ; This procedure generates grid in forms of buttons (that's the best solution
 ; we have so far). This grid acts as a outer layer in the game.
-generateButtons PROC USES ecx ebx
+generateButtons PROC uses ECX EBX
 ; _______________________________________________________________________________
-	invoke	GetModuleHandle, NULL
-	; RESET BUTTON **************************************************************
-	mov esi, offset smiley
-	invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR resetButtonText, \
-			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
-			104, 4, 40, 25, generateButtonsHandle, 500, [esi], NULL
-	; FLAG BUTTON ***************************************************************
-	mov esi, offset flagger
-	invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR flagButtonText, \
-			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
-			35, 4, 20, 20, generateButtonsHandle, 501, [esi], NULL
-	mov ecx, 9	; OUTER LOOP
-	mov esi, OFFSET hButtons
-	mov edi, OFFSET grid
+  invoke  GetModuleHandle, NULL
+  ; [RESET BUTTON]
+  mov     esi, OFFSET smiley
+  invoke  CreateWindowEx, NULL, ADDR ButtonClassName, ADDR resetButtonText, \
+          WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
+          104, 4, 40, 25, generateButtonsHandle, 500, [esi], NULL
+  ; [FLAG BUTTON]
+  mov     esi, OFFSET flagger
+  invoke  CreateWindowEx, NULL, ADDR ButtonClassName, ADDR flagButtonText, \
+          WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
+          35, 4, 20, 20, generateButtonsHandle, 501, [esi], NULL
+
+  mov ecx, 9	; OUTER LOOP
+  mov esi, OFFSET hButtons
+  mov edi, OFFSET grid
 MARCO:
-	push ecx	; keep outer counter for later
-	mov ecx, 9	; INNER LOOP
-	POLO:
-		push ecx	; saving ECX value on stack just to be safe
-		push esi
-		invoke	GetModuleHandle, NULL
-		pop esi
-		mov	[esi], eax ; unique handle for a button
-		; 3 lines below creates a button at (x, y) coordinates and its 20x20 size
-		invoke CreateWindowEx, NULL, ADDR ButtonClassName, NULL, \
-				WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
-				x, y, 20, 20, generateButtonsHandle, ButtonID, [esi], NULL
+  push  ecx	; keep outer counter for later
+  mov   ecx, 9	; INNER LOOP
+  POLO:
+    push    ecx	; saving ECX value on stack just to be safe
+    push    esi
+    invoke  GetModuleHandle, NULL
+    pop     esi
+    mov	    [esi], eax ; unique handle for a button
+    ; 3 lines below creates a button at (x, y) coordinates and its 20x20 size
+    invoke  CreateWindowEx, NULL, ADDR ButtonClassName, NULL, \
+            WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
+            x, y, 20, 20, generateButtonsHandle, ButtonID, [esi], NULL
+    mov     [esi], eax
+    add     esi, type hButtons ; increment to the next item in array
+    add     ButtonID, type hButtons ; use button ID to increment into array later on
+    add     x, 20	; move X value to right by 20 pixels
+    pop     ecx		; returning (from stack) saved value of ECX
+    loop POLO
 
-		mov [esi], eax
-		add esi, type hButtons	; increment to the next item in array
-		add ButtonID, type hButtons ; use button ID to increment into array later on
-		add x, 20	; move X value to right by 20 pixels
-		pop ecx		; returning (from stack) saved value of ECX
-		loop POLO
-	pop ecx		; bring outer counter to continue
-	add y, 20	; move Y value to right by 20 pixels
-	mov x, 35	; reset X to default value
-	loop MARCO
+  pop ecx		; bring outer counter to continue
+  add y, 20	; move Y value to right by 20 pixels
+  mov x, 35	; reset X to default value
+  loop MARCO
 
-	; HOW-TO-PLAY BUTTON ********************************************************
-	add y, 5
-	add x, 85
-	mov esi, OFFSET howToPlay
-	invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR howToPlayButtonText, \
-			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
-			x, y, 92, 20, generateButtonsHandle, ID_HOW_TO_PLAY_BUTTON, [esi], NULL
-	ret
+  ; [HOW-TO-PLAY BUTTON]
+  add     y, 5
+  add     x, 85
+  mov     esi, OFFSET howToPlay
+  invoke  CreateWindowEx, NULL, ADDR ButtonClassName, ADDR howToPlayButtonText, \
+          WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
+          x, y, 92, 20, generateButtonsHandle, ID_HOW_TO_PLAY_BUTTON, [esi], NULL
+  ret
 generateButtons ENDP
 
 ; _____________________________________________________________
