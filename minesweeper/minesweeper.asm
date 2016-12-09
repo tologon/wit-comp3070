@@ -7,7 +7,7 @@ option casemap:none	; required property
 INCLUDE Grid32.inc
 ; ____________________________ DATA & DEFINITIONS ______________________________________________
 .data
-; ---------------------------- windows VARIABLES ------------------------------
+; windows VARIABLES  ----------------------------------------------------------
 originalHDC DWORD ?
 hInstance HINSTANCE ?
 timeValue BYTE "000", 0
@@ -16,35 +16,37 @@ WindowClassName BYTE "WindowsClass", 0
 lgfnt LOGFONT <18,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,"Lucida Console"> ; Text font
 ; -----------------------------------------------------------------------------
 
-; grid buttons VARIABLES
-ButtonClassName	BYTE "Button", 0
-x				WORD 35 ; Initial grid button's placement
-y				WORD 30 ; Initial grid button's placement
-ButtonID		DWORD 0 ; The control ID of the each button on a grid
+; grid buttons VARIABLES -------
+x WORD 35
+y WORD 30
+ButtonID DWORD 0
 generateButtonsHandle DWORD ?
+ButtonClassName	BYTE "Button", 0
+; ------------------------------
 
-
-; reset/smiley VARIABLES 
+; reset/smiley VARIABLES ----
 smiley DWORD ?
 resetButtonText BYTE "^_^", 0
+; ---------------------------
 
-; flag VARIABLES _________
+; flag VARIABLES ----------
 flagger DWORD ?
-flagButtonText BYTE "F", 0
 flagBool BYTE 0
 flagMsg BYTE "FLAG ON", 0
+flagButtonText BYTE "F", 0
 noFlagMsg BYTE "       ", 0
+; -------------------------
 
-; WndProc local VARIABLES
+; WndProc VARIABLES -
 WndProc_hDC DWORD 0
 WndProc_hFont DWORD 0
-; -----------------------
+; -------------------
 
-; WinMain local VARIABLES
+; WinMain VARIABLES
 WinMain_hwnd HWND 0
-; -----------------------
+; -----------------
 
-; how-to-play VARIABLES
+; how-to-play VARIABLES -----------------------------------------------------------------------------------------
 howToPlay DWORD ?
 ID_HOW_TO_PLAY_BUTTON DWORD 0FAh
 howToPlayButtonText BYTE "How-To-Play", 0
