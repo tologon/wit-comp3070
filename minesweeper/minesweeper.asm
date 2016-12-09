@@ -6,7 +6,6 @@ option casemap:none	; required property
 
 INCLUDE Grid32.inc
 ; ____________________________ DATA & DEFINITIONS ______________________________________________
-generateButtons	PROTO	:DWORD
 
 .data
 ClassName		BYTE "SimpleWinClass", 0
@@ -17,13 +16,14 @@ y				WORD 30
 ButtonID		DWORD 0 ; The control ID of the button control
 lgfnt           LOGFONT <18,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,"Lucida Console"> ; Text font
 smiley DWORD ?
-resetButtonText BYTE "Reset", 0
+resetButtonText BYTE "^_^", 0
 flagger DWORD ?
 flagButtonText BYTE "F", 0
 flagBool BYTE 0
 flagMsg BYTE "FLAG ON", 0
 noFlagMsg BYTE "         ", 0
 timeValue       BYTE "000", 0
+generateButtonsHandle DWORD ?
 
 howToPlay DWORD ?
 ID_HOW_TO_PLAY_BUTTON DWORD 0FAh
@@ -116,19 +116,19 @@ WinMain ENDP
 ; _______________________________________________________________________________
 ; This procedure generates grid in forms of buttons (that's the best solution
 ; we have so far). This grid acts as a outer layer in the game.
-generateButtons PROC USES ecx ebx hWnd:HWND
+generateButtons PROC USES ecx ebx
 ; _______________________________________________________________________________
 	invoke	GetModuleHandle, NULL
 	; RESET BUTTON **************************************************************
 	mov esi, offset smiley
 	invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR resetButtonText, \
 			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
-			100, 4, 52, 20, hWnd, 500, [esi], NULL
+			104, 4, 40, 25, generateButtonsHandle, 500, [esi], NULL
 	; FLAG BUTTON ***************************************************************
 	mov esi, offset flagger
 	invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR flagButtonText, \
 			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
-			35, 4, 20, 20, hWnd, 501, [esi], NULL
+			35, 4, 20, 20, generateButtonsHandle, 501, [esi], NULL
 	mov ecx, 9	; OUTER LOOP
 	mov esi, OFFSET hButtons
 	mov edi, OFFSET grid
@@ -144,7 +144,7 @@ MARCO:
 		; 3 lines below creates a button at (x, y) coordinates and its 20x20 size
 		invoke CreateWindowEx, NULL, ADDR ButtonClassName, NULL, \
 				WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
-				x, y, 20, 20, hWnd, ButtonID, [esi], NULL
+				x, y, 20, 20, generateButtonsHandle, ButtonID, [esi], NULL
 
 		mov [esi], eax
 		add esi, type hButtons	; increment to the next item in array
@@ -163,7 +163,7 @@ MARCO:
 	mov esi, OFFSET howToPlay
 	invoke CreateWindowEx, NULL, ADDR ButtonClassName, ADDR howToPlayButtonText, \
 			WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON, \
-			x, y, 92, 20, hWnd, ID_HOW_TO_PLAY_BUTTON, [esi], NULL
+			x, y, 92, 20, generateButtonsHandle, ID_HOW_TO_PLAY_BUTTON, [esi], NULL
 	ret
 generateButtons ENDP
 
@@ -194,7 +194,13 @@ destroyWindow:
 
 createWindow:
 	call PlaceMines
-	invoke generateButtons, hWnd
+
+	push eax
+	mov eax, hWnd
+	mov generateButtonsHandle, eax
+	pop eax
+	call generateButtons
+	
 	invoke SetTimer,hWnd,222,1000,NULL
 	jmp xorEAX
 
@@ -306,7 +312,13 @@ resetWindow:
 	mov y, 30
 	mov ButtonID, 0
 	mov flagBool, 0
-	invoke generateButtons, hWnd
+
+	push eax
+	mov eax, hWnd
+	mov generateButtonsHandle, eax
+	pop eax
+	call generateButtons
+
 	; RESET TIMER - START ------------------
 	call resetTimeValue
 	jmp updateTimer
