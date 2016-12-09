@@ -6,7 +6,6 @@ option casemap:none	; required property
 
 INCLUDE Grid32.inc
 ; ____________________________ DATA & DEFINITIONS ______________________________________________
-WinMain			PROTO	:DWORD
 generateButtons	PROTO	:DWORD
 
 .data
@@ -51,7 +50,7 @@ main PROC
 	call Randomize
     invoke	GetModuleHandle, NULL
     mov		hInstance, eax
-    invoke	WinMain, hInstance
+    call	WinMain
     invoke	ExitProcess, eax
 main ENDP
 
@@ -59,7 +58,7 @@ main ENDP
 ; This procedure serves two purposes:
 ; 1. It initializes the main window
 ; 2. It receives messages and dispatches them to related controls like buttons
-WinMain PROC hInst:HINSTANCE
+WinMain PROC
 ; _____________________________________________________________________________
     LOCAL	wc:WNDCLASSEX
     LOCAL	msg:MSG
@@ -69,7 +68,7 @@ WinMain PROC hInst:HINSTANCE
     mov		wc.lpfnWndProc, OFFSET WndProc
     mov		wc.cbClsExtra, NULL
     mov		wc.cbWndExtra, NULL
-    push	hInst
+    push	hInstance
     pop		wc.hInstance
     mov		wc.hbrBackground, COLOR_BTNFACE
     ;mov	    wc.lpszMenuName, OFFSET MenuName
@@ -93,7 +92,7 @@ WinMain PROC hInst:HINSTANCE
     invoke	CreateWindowEx, WS_EX_CLIENTEDGE, ADDR ClassName, \
 				ADDR AppName, WS_OVERLAPPEDWINDOW, \
 				ebx, eax, \
-				250, 290, NULL, NULL, hInst ,NULL
+				250, 290, NULL, NULL, hInstance ,NULL
     mov		hwnd, eax
 	invoke	UpdateWindow, hwnd
 	invoke	ShowWindow, hwnd, SW_SHOWNORMAL
