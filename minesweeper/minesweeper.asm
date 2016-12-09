@@ -41,6 +41,12 @@ gameInstructions	BYTE 9, 9, 9, "        Minesweeper", 10
 					BYTE "Counter Bar:", 10 
 					BYTE "Displays the number of mines still hidden on the map, and the timer keeps track of", 32
 					BYTE "how many seconds it takes to clear the board.", 0
+					BYTE "Flag Mode:", 10, 10
+					BYTE "To place flags, press the F button which will put you into flag mode. Once in flag",10
+					BYTE "mode you will be able to place flags to mark where you believe there are mines", 10
+					BYTE "Reset Button:", 10, 10
+					BYTE "Click the smiling face button located above the map in the middle of the screen",10
+					BYTE "in order to reset the map and start a new game", 10
 
 .data?
 hInstance	HINSTANCE ?
