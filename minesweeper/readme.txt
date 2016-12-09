@@ -34,10 +34,13 @@ Dan:
 	How-to-play text
 	How-to-play GUI window
 	Timer
-	Code Refactoring
 	
 
 BUGS:
 	The windows API PAINT calls stop working correctly after a cell is clicked
 	This means that the timer stops updating, and the "Flag Mode" text does not
-	appear when flag mode is active. 
+	appear when flag mode is active.
+	
+	We believe this is because of the interrupt system pausing the window.
+	It's worth noting that resizing the window causes the timer and flag mode
+	text to work correctly again, until the next button click.
