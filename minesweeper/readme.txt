@@ -4,9 +4,9 @@ Tologon Eshminkanov (C)
 Terrance Curley
 Daniel Zidelis
 
-TOTAL NUMBER OF LINES: 1053
-Grid32.inc: 	668
-minesweeper.asm:	385
+TOTAL NUMBER OF LINES: 1089
+Grid32.inc: 	667
+minesweeper.asm:	422
 
 PARTS COMPLETED BY EACH PERSON:
 
@@ -18,7 +18,7 @@ Tologon:
 	Flood-fill algorithm for opening cells
 	Timer
 	Code Refactoring
-	
+
 Terrance:
 	Underlying grid generation
 		Randomized Mine Placement
@@ -29,18 +29,18 @@ Terrance:
 	Reset Button
 	Flags & Flag Button
 	Readme :)
-	
+
 Dan:
 	How-to-play text
 	How-to-play GUI window
 	Timer
-	
+
 
 BUGS:
 	The windows API PAINT calls stop working correctly after a cell is clicked
 	This means that the timer stops updating, and the "Flag Mode" text does not
 	appear when flag mode is active.
-	
+
 	We believe this is because of the interrupt system pausing the window.
 	It's worth noting that resizing the window causes the timer and flag mode
 	text to work correctly again, until the next button click.
