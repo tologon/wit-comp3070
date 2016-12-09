@@ -1,13 +1,13 @@
 TITLE Minesweeper
 ; Authors: Daniel Zidelis, Terrance Curley, Tologon Eshimkanov
-; ____________________________ SETTINGS & LIBRARIES ____________________________________________
+; ____________________________ SETTINGS & LIBRARIES _____________________________________________________________
 .model flat,stdcall ; required directives
 option casemap:none	; required property
 
 INCLUDE Grid32.inc
-; ____________________________ DATA & DEFINITIONS ______________________________________________
+; ____________________________ DATA & DEFINITIONS _______________________________________________________________
 .data
-; windows VARIABLES  ----------------------------------------------------------
+; [windows VARIABLES]
 originalHDC DWORD ?
 hInstance HINSTANCE ?
 timeValue BYTE "000", 0
@@ -16,7 +16,7 @@ WindowClassName BYTE "WindowsClass", 0
 lgfnt LOGFONT <18,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,"Lucida Console"> ; Text font
 ; -----------------------------------------------------------------------------
 
-; grid buttons VARIABLES -------
+; [grid buttons VARIABLES]
 x WORD 35
 y WORD 30
 ButtonID DWORD 0
@@ -24,12 +24,12 @@ generateButtonsHandle DWORD ?
 ButtonClassName	BYTE "Button", 0
 ; ------------------------------
 
-; reset/smiley VARIABLES ----
+; [reset/smiley VARIABLES]
 smiley DWORD ?
 resetButtonText BYTE "^_^", 0
 ; ---------------------------
 
-; flag VARIABLES ----------
+; [flag VARIABLES]
 flagger DWORD ?
 flagBool BYTE 0
 flagMsg BYTE "FLAG ON", 0
@@ -37,16 +37,16 @@ flagButtonText BYTE "F", 0
 noFlagMsg BYTE "       ", 0
 ; -------------------------
 
-; WndProc VARIABLES -
+; [WndProc local VARIABLES]
 WndProc_hDC DWORD 0
 WndProc_hFont DWORD 0
 ; -------------------
 
-; WinMain VARIABLES
+; [WinMain local VARIABLES]
 WinMain_hwnd HWND 0
 ; -----------------
 
-; how-to-play VARIABLES -----------------------------------------------------------------------------------------
+; [how-to-play VARIABLES]
 howToPlay DWORD ?
 ID_HOW_TO_PLAY_BUTTON DWORD 0FAh
 howToPlayButtonText BYTE "How-To-Play", 0
@@ -62,7 +62,7 @@ instructions BYTE 9, 9, 9, "        Minesweeper", 10
 			 BYTE "Counter Bar:", 10 
 			 BYTE "Displays the number of mines still hidden on the map, and the timer keeps track of", 32
 			 BYTE "how many seconds it takes to clear the board.", 0
-; ___________________________________ CODE _____________________________________________________
+; ___________________________________ CODE ______________________________________________________________________
 .code
 main PROC
 	call Randomize
@@ -92,7 +92,6 @@ WinMain PROC
     push	hInstance
     pop		wc.hInstance
     mov		wc.hbrBackground, COLOR_BTNFACE
-    ;mov	    wc.lpszMenuName, OFFSET MenuName
     mov		wc.lpszClassName, OFFSET WindowClassName
     invoke	LoadIcon, NULL, IDI_APPLICATION
     mov		wc.hIcon, eax
@@ -227,7 +226,6 @@ createWindow:
 	invoke SetTimer,hWnd,222,1000,NULL
 	jmp xorEAX
 
-; TODO: interaction with buttons goes here
 checkCommand:
 	cmp lParam, 0
 	jne buttonClick
@@ -257,14 +255,13 @@ paintWindow:
 		pop ecx
 		loop JoseMineSupplier
 	jmp updateTimer
-	;jmp xorEAX
 
 defaultWindow:
 	invoke DefWindowProc, hWnd, uMsg, wParam, lParam
 	jmp endProc
 
 ; Checks if button is the reset button or the flag button, reacts accordingly
-; Else if it is a normal button ,check if you are in flag mode
+; Else if it is a normal button, check if you are in flag mode
 buttonClick:
 	mov eax, wParam
 	cmp eax, 500
