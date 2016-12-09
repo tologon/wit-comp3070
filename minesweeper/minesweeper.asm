@@ -59,78 +59,75 @@ instructions BYTE 9, 9, 9, "        Minesweeper", 10
 			 BYTE "Each number tells you how many mines are in the 8 spaces surrounding that specific space.", 32
 			 BYTE "This information can be used to deduce which adjacent spaces are safe, and ", 32
 			 BYTE "which could have bombs.", 10, 10
-			 BYTE "Counter Bar:", 10 
+			 BYTE "Counter Bar:", 10
 			 BYTE "Displays the number of mines still hidden on the map, and the timer keeps track of", 32
 			 BYTE "how many seconds it takes to clear the board.", 0
 ; ___________________________________ CODE ______________________________________________________________________
 .code
 main PROC
-	call Randomize
-    invoke	GetModuleHandle, NULL
-    mov		hInstance, eax
-    call	WinMain
-    invoke	ExitProcess, eax
+  call    Randomize
+  invoke  GetModuleHandle, NULL
+  mov     hInstance, eax
+  call    WinMain
+  invoke  ExitProcess, eax
 main ENDP
 
 ; _____________________________________________________________________________
 ; This procedure serves two purposes:
-; 1. It initializes the main window	
+; 1. It initializes the main window
 ; 2. It receives messages and dispatches them to related controls like buttons
 WinMain PROC
 ; _____________________________________________________________________________
-	; Local variable below must be initialized that way in order for the rest
-	; of code in this procedure to work. There is no simple work around that.
-	; We've taken out all other local variables that didn't crash the program.
-	LOCAL	wc:WNDCLASSEX 
-    LOCAL	msg:MSG
-
-    mov		wc.cbSize, SIZEOF WNDCLASSEX
-    mov		wc.style, CS_HREDRAW or CS_VREDRAW
-    mov		wc.lpfnWndProc, OFFSET WndProc
-    mov		wc.cbClsExtra, NULL
-    mov		wc.cbWndExtra, NULL
-    push	hInstance
-    pop		wc.hInstance
-    mov		wc.hbrBackground, COLOR_BTNFACE
-    mov		wc.lpszClassName, OFFSET WindowClassName
-    invoke	LoadIcon, NULL, IDI_APPLICATION
-    mov		wc.hIcon, eax
-    mov		wc.hIconSm, eax
-    invoke	LoadCursor, NULL, IDC_ARROW
-    mov		wc.hCursor, eax
-    invoke	RegisterClassEx, addr wc
-;---------- [Center the window] ----------
-      INVOKE     GetSystemMetrics, SM_CXSCREEN
-         sub     eax, 350
-         shr     eax, 1
-        push     eax
-      INVOKE     GetSystemMetrics, SM_CYSCREEN
-         sub     eax, 300
-         shr     eax, 1
-         pop     ebx
-;---------- [Create the Main Window] ----------
-    invoke	CreateWindowEx, WS_EX_CLIENTEDGE, ADDR WindowClassName, \
-				ADDR AppName, WS_OVERLAPPEDWINDOW, \
-				ebx, eax, \
-				250, 290, NULL, NULL, hInstance ,NULL
-    mov		WinMain_hwnd, eax
-	invoke	UpdateWindow, WinMain_hwnd
-	invoke	ShowWindow, WinMain_hwnd, SW_SHOWNORMAL
+  ; Local variables below must be initialized that way in order for the rest
+  ; of code in this procedure to work. There is no simple work around that.
+  ; We've taken out all other local variables that didn't crash the program.
+  LOCAL   wc:WNDCLASSEX
+  LOCAL   msg:MSG
+  mov     wc.cbSize, SIZEOF WNDCLASSEX
+  mov     wc.style, CS_HREDRAW or CS_VREDRAW
+  mov     wc.lpfnWndProc, OFFSET WndProc
+  mov     wc.cbClsExtra, NULL
+  mov     wc.cbWndExtra, NULL
+  push    hInstance
+  pop     wc.hInstance
+  mov     wc.hbrBackground, COLOR_BTNFACE
+  mov     wc.lpszClassName, OFFSET WindowClassName
+  invoke  LoadIcon, NULL, IDI_APPLICATION
+  mov     wc.hIcon, eax
+  mov     wc.hIconSm, eax
+  invoke  LoadCursor, NULL, IDC_ARROW
+  mov     wc.hCursor, eax
+  invoke  RegisterClassEx, ADDR wc
+  ; [CENTER THE WINDOW]
+  invoke  GetSystemMetrics, SM_CXSCREEN
+  sub     eax, 350
+  shr     eax, 1
+  push    eax
+  invoke  GetSystemMetrics, SM_CYSCREEN
+  sub     eax, 300
+  shr     eax, 1
+  pop     ebx
+  ; [CREATE THE WINDOW]
+  invoke  CreateWindowEx, WS_EX_CLIENTEDGE, ADDR WindowClassName, \
+          ADDR AppName, WS_OVERLAPPEDWINDOW, \
+          ebx, eax, \
+          250, 290, NULL, NULL, hInstance ,NULL
+  mov     WinMain_hwnd, eax
+  invoke  UpdateWindow, WinMain_hwnd
+  invoke  ShowWindow, WinMain_hwnd, SW_SHOWNORMAL
 
 MESSAGES:
-    invoke GetMessage, ADDR msg, NULL, NULL, NULL
+  invoke  GetMessage, ADDR msg, NULL, NULL, NULL
+  cmp     eax, 0	; check if main window is closed
+  je      endProc	; yes: end the program
 
-	cmp eax, 0	; check if main window is closed
-	je endProc	; yes: end the program
-
-    invoke TranslateMessage, ADDR msg
-    invoke DispatchMessage, ADDR msg
-
+  invoke  TranslateMessage, ADDR msg
+  invoke  DispatchMessage, ADDR msg
 	jmp MESSAGES
 
 endProc:
-	mov eax, msg.wParam
-    ret
+  mov eax, msg.wParam
+  ret
 WinMain ENDP
 
 ; _______________________________________________________________________________
@@ -196,7 +193,7 @@ WndProc PROC hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 	; Local variable below must be initialized that way in order for the rest
 	; of code in this procedure to work. There is no simple work around that.
 	; We've taken out all other local variables that didn't crash the program.
-	LOCAL ps:PAINTSTRUCT	
+	LOCAL ps:PAINTSTRUCT
 
 	cmp uMsg, WM_DESTROY
 	je destroyWindow
@@ -222,7 +219,7 @@ createWindow:
 	mov generateButtonsHandle, eax
 	pop eax
 	call generateButtons
-	
+
 	invoke SetTimer,hWnd,222,1000,NULL
 	jmp xorEAX
 
@@ -278,7 +275,7 @@ buttonClick:
 	jmp endProc
 
 displayHowToPlay:
-	invoke MessageBox, NULL, ADDR instructions, ADDR howToPlayButtonText, MB_OK 
+	invoke MessageBox, NULL, ADDR instructions, ADDR howToPlayButtonText, MB_OK
 	jmp xorEAX
 
 ;Turn flag mode on if it is currently off; Turn it off if it is currently on.
@@ -320,7 +317,7 @@ removeButton:
 	call removeButtons
 	jmp endProc
 
-; clear buttons, re-generate them, 
+; clear buttons, re-generate them,
 ; reset values to default, and generate a new game grid
 resetWindow:
 	call clearGrid
@@ -350,7 +347,7 @@ updateTimer:
 	invoke CreateFontIndirect,ADDR lgfnt
 	mov WndProc_hFont,eax
 	invoke SelectObject,originalHDC,WndProc_hFont
-	
+
 	mov esi, OFFSET timeValue
 	invoke TextOut,originalHDC,182,6,esi,4
 	invoke EndPaint,hWnd, ADDR ps
