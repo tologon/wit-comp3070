@@ -25,6 +25,12 @@ noFlagMsg BYTE "         ", 0
 timeValue       BYTE "000", 0
 generateButtonsHandle DWORD ?
 
+
+; WndProc local variables
+WndProc_hDC DWORD 0
+WndProc_hFont DWORD 0
+; -----------------------
+
 howToPlay DWORD ?
 ID_HOW_TO_PLAY_BUTTON DWORD 0FAh
 howToPlayButtonText BYTE "How-To-Play", 0
@@ -173,9 +179,9 @@ generateButtons ENDP
 ; cell's value behind that button.
 WndProc PROC hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 ; _____________________________________________________________
-	LOCAL hDC:DWORD
-	LOCAL hFont:DWORD
-	LOCAL ps:PAINTSTRUCT
+	LOCAL ps:PAINTSTRUCT	; has to be declared local in order for code like
+							; invoke BeginPaint,hWnd,ADDR ps to work
+						
 	cmp uMsg, WM_DESTROY
 	je destroyWindow
 	cmp uMsg, WM_CREATE
@@ -208,16 +214,15 @@ createWindow:
 checkCommand:
 	cmp lParam, 0
 	jne buttonClick
-	;invoke DestroyWindow, hWnd
 	jmp xorEAX
 
 paintWindow:
 	invoke BeginPaint,hWnd,ADDR ps
-	mov hDC,eax
+	mov WndProc_hDC,eax
   mov originalHDC, eax
 	invoke CreateFontIndirect,ADDR lgfnt
-	mov hFont,eax
-	invoke SelectObject,hDC,hFont
+	mov WndProc_hFont,eax
+	invoke SelectObject,WndProc_hDC,WndProc_hFont
 	mov ecx, 9
 	mov x, 35
 	mov y, 30
@@ -226,7 +231,7 @@ paintWindow:
 		push ecx
 		mov ecx, 9
 		JoseMineLayer:
-			invoke TextOut,hDC,x,y,esi,1
+			invoke TextOut,WndProc_hDC,x,y,esi,1
 			inc esi
 			add x, 20
 			loop JoseMineLayer
@@ -269,8 +274,8 @@ toggleFlag:
 		mov flagBool, 0
 		invoke BeginPaint,hWnd,ADDR ps
 		invoke CreateFontIndirect,ADDR lgfnt
-		mov hFont,eax
-		invoke SelectObject,originalHDC,hFont
+		mov WndProc_hFont,eax
+		invoke SelectObject,originalHDC,WndProc_hFont
 		mov esi, offset noFlagMsg
 		invoke TextOut,originalHDC,35,215,esi,7
 	jmp endProc
@@ -279,8 +284,8 @@ toggleFlag:
 		mov flagBool, 1
 		invoke BeginPaint,hWnd,ADDR ps
 		invoke CreateFontIndirect,ADDR lgfnt
-		mov hFont,eax
-		invoke SelectObject,originalHDC,hFont
+		mov WndProc_hFont,eax
+		invoke SelectObject,originalHDC,WndProc_hFont
 		mov esi, offset flagMsg
 		invoke TextOut,originalHDC,35,215,esi,7
 	jmp endProc
@@ -329,8 +334,8 @@ updateTimer:
 	push esi
 	invoke BeginPaint,hWnd,ADDR ps
 	invoke CreateFontIndirect,ADDR lgfnt
-	mov hFont,eax
-	invoke SelectObject,originalHDC,hFont
+	mov WndProc_hFont,eax
+	invoke SelectObject,originalHDC,WndProc_hFont
 	
 	mov esi, OFFSET timeValue
 	invoke TextOut,originalHDC,182,6,esi,4
